@@ -40,6 +40,7 @@ class Camera(context: Context) {
     private lateinit var camera: CameraDevice
     private lateinit var session: CameraCaptureSession
     private var initSuccessful  = false
+    private var initOngoing = false
 
     /**Log file variables*/
     private val appDirectory = File(context.getExternalFilesDir(null).toString() + "/SensorLogger")
@@ -48,7 +49,10 @@ class Camera(context: Context) {
     private var outputFile : File? = null
 
     private val uploadHandler = Handler()
-    private var uploadTask = Runnable { uploadVideo(true) }
+    private var uploadTask = Runnable {
+        Log.d("CAM", "Uploading video with periodic task.")
+        uploadVideo(true)
+    }
     private var uploadPeriod : Long = App.sessionManager.getUploadRate().toLong() * 1000
 
     /**New thread for camera operations*/
@@ -82,6 +86,7 @@ class Camera(context: Context) {
     private val movementChecker = Runnable { movementListener() }
 
     private fun initializeCamera() = GlobalScope.launch(Dispatchers.Main){
+            initOngoing = true
             if (cameraManager.cameraIdList.isEmpty()) {
                 Toast.makeText(mContext, "No cameras were found on the device.", Toast.LENGTH_SHORT).show()
             }
@@ -98,6 +103,7 @@ class Camera(context: Context) {
                     Log.d("CAMTAG", "Error during camera initialization: $e")
                 }
             }
+            initOngoing = false
         }
 
     private suspend fun openCamera(cameraId: String) : CameraDevice? = suspendCoroutine {cont ->
@@ -151,22 +157,27 @@ class Camera(context: Context) {
     }
 
     private fun movementListener(){
+        Log.d("CAM", "Movementlistener called.")
+        var movementCheckerStarted = false
         if (App.inMovement && !recording){
+            Log.d("CAM", "User is in movement, starting recording...")
             startRecording()
             uploadHandler.postDelayed(uploadTask, uploadPeriod)
-            Log.d("CAM", "User is in movement, started recording.")
+            Log.d("CAM", "User is in movement, recording started...")
         }
         if (!App.inMovement && recording){
+            Log.d("CAM", "User has not moved for 30 seconds, stopped recording and started to upload video.")
             uploadHandler.removeCallbacks(uploadTask)
             uploadVideo(false)
-            Log.d("CAM", "User has not moved for 30 seconds, stopped recording.")
+            movementCheckerStarted = true
         }
 
-        recordHandler.postDelayed(movementChecker,1000)
+        //movementChecker is started when uploadVideo is called
+        if (!movementCheckerStarted) recordHandler.postDelayed(movementChecker,1000)
     }
 
     private fun startRecording() = GlobalScope.launch(Dispatchers.Default){
-        if (!initSuccessful) initializeCamera().join()
+        if (!initSuccessful && !initOngoing) initializeCamera().join()
         if (initSuccessful) {
             recording = true
 
@@ -183,17 +194,27 @@ class Camera(context: Context) {
             }
         }
         else {
-            Toast.makeText(mContext, "Error: Video is not being recorded.", Toast.LENGTH_LONG).show()
+            Log.d("CAM", "Error: Video is not being recorded.")
         }
     }
 
     fun stopRecording(){
+        Log.d("CAM", "stopRecording called. State of recording: ${recording}")
         if (recording){
-            initSuccessful = false
-            session.stopRepeating()
-            camera.close()
-            recorder.stop()
-            recording = false
+            try {
+                initSuccessful = false
+                Log.d("CAM", "Stopping repeating request.")
+                session.stopRepeating()
+                Log.d("CAM", "Closing camera.")
+                camera.close()
+                Log.d("CAM", "Stopping recorder.")
+                recorder.stop()
+                recording = false
+            }
+            catch (e: Exception){
+                Log.d("CAM", "Error while trying to stop recording: ${e}")
+                e.printStackTrace()
+            }
         }
     }
 
@@ -206,26 +227,38 @@ class Camera(context: Context) {
         recordHandler.removeCallbacks(movementChecker)
         uploadHandler.removeCallbacks(uploadTask)
         if (recording){
+            Log.d("CAM", "Measurement has been stopped, uploading video.")
             uploadVideo(false)
         }
      }
 
     private fun uploadVideo(startNewSession: Boolean){
         Log.d("CAM", "Started uploading video.")
+
+        //Disable movementChecker until restarting the recording to avoid parallel "startRecording()" call
+        recordHandler.removeCallbacks(movementChecker)
+
         val fileToUpload = outputFile
-        stopRecording()
+
+        //This has to be blocking to avoid calling startRecording() before session is closed.
+        runBlocking { stopRecording() }
 
         if (fileToUpload != null) {
             App.uploadManager.add(fileToUpload)
         }
 
         if (startNewSession){
+            Log.d("CAM", "Starting recording from uploadVideo function.")
             startRecording()
             uploadHandler.postDelayed(uploadTask, uploadPeriod)
         }
+
+        //Restart periodic movement checking
+        recordHandler.postDelayed(movementChecker, 1000)
     }
 
     fun triggerManualUpload(){
+        Log.d("CAM", "Manual video uploading has been triggered.")
         if (outputFile!!.exists()){
             if (recording){
                 uploadHandler.removeCallbacks(uploadTask)
