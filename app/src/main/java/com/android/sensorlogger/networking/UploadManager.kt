@@ -38,7 +38,7 @@ class UploadManager(val context: Context) {
         while (filesToUpload.isNotEmpty()) {
             while (!Util.isOnline()) {
                 Log.d(TAG, "Waiting 30s for network")
-                delay(30000)
+                delay(30_000)
             }
             Log.d(TAG, "${filesToUpload.size} Files to upload!")
 

@@ -5,9 +5,9 @@ import android.media.MediaRecorder
 object Config {
 
     object Sensor {
-        var ACC_X_THRESHOLD = 0.5
-        var ACC_Y_THRESHOLD = 0.5
-        var ACC_Z_THRESHOLD = 0.5
+        var ACC_X_THRESHOLD = 0.1
+        var ACC_Y_THRESHOLD = 0.1
+        var ACC_Z_THRESHOLD = 0.1
 
         var GYRO_X_THRESHOLD = 0.1
         var GYRO_Y_THRESHOLD = 0.1
