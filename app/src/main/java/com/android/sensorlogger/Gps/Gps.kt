@@ -33,6 +33,7 @@ class Gps(context: Context) : LocationListener, Logger(context, "GPS")
 
     fun stop(){
         locationManager.removeUpdates(this)
+        closeFile()
     }
 
     override fun onLocationChanged(loc: Location) {

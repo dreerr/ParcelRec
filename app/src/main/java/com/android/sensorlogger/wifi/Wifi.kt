@@ -59,7 +59,6 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
                     //New network found
                     availableNetworks.add(it)
                     val line = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) + ";${it.SSID};${it.BSSID};;\n"
-                    Log.d("WIFI", "Writing new data to wifi logfile (found).")
                     writeLine(line)
                 }
             }
@@ -70,7 +69,6 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
                     //Lost a network
                     elementToRemove.add(it)
                     val line = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) + ";;;${it.SSID};${it.BSSID}\n"
-                    Log.d("WIFI", "Writing new data to wifi logfile (lost).")
                     writeLine(line)
                 }
             }
@@ -79,7 +77,6 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
             elementToRemove.forEach {
                 availableNetworks.remove(it)
             }
-            closeFile()
         }
     }
 
@@ -100,6 +97,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
     fun stop(){
         scanHandler.removeCallbacks(scanRunnable)
         context.unregisterReceiver(wifiScanReceiver)
+        closeFile()
     }
 
 }

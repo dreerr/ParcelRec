@@ -66,5 +66,6 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
 
     fun stop(){
         sensorManager.unregisterListener(this)
+        closeFile()
     }
 }
