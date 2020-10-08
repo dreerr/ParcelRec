@@ -35,7 +35,7 @@ open class Logger(open var context: Context, var fileNameTag : String) {
     fun writeLine(line : String) {
         if(lastCreated == 0L) initNewFile()
         val now = Date().time
-        if((now - lastCreated) > 60_000) {
+        if((now - lastCreated) > 1_000 * App.sessionManager.getUploadRate()) {
             closeFile()
             initNewFile()
             lastCreated = now
