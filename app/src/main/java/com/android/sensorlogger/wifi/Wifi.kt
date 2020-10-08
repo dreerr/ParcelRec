@@ -60,7 +60,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
                     availableNetworks.add(it)
                     val line = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) + ";${it.SSID};${it.BSSID};;\n"
                     Log.d("WIFI", "Writing new data to wifi logfile (found).")
-                    writeToFile(line)
+                    writeLine(line)
                 }
             }
 
@@ -71,7 +71,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
                     elementToRemove.add(it)
                     val line = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) + ";;;${it.SSID};${it.BSSID}\n"
                     Log.d("WIFI", "Writing new data to wifi logfile (lost).")
-                    writeToFile(line)
+                    writeLine(line)
                 }
             }
 
@@ -90,7 +90,6 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
         }
         else{
             loggingWifi = true
-            initLogFile()
             val intentFilter = IntentFilter()
             intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
             context.registerReceiver(wifiScanReceiver, intentFilter)
