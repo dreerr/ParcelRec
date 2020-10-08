@@ -28,7 +28,6 @@ class Gps(context: Context) : LocationListener, Logger(context, "GPS")
     fun run(){
         if (PermissionHelper.hasGpsPermission(context)) {
             locationManager.requestLocationUpdates("fused", 5000, 0f, this)
-            initLogFile()
         }
     }
 
@@ -44,8 +43,7 @@ class Gps(context: Context) : LocationListener, Logger(context, "GPS")
                         loc.latitude.toString() + ";"
                         loc.longitude.toString() + "\n"
                 Log.d("GPS", "Logging coordinates: ${loc.latitude} ${loc.longitude}")
-                writeToFile(line)
-                closeFile()
+                writeLine(line)
             }
         }
     }
