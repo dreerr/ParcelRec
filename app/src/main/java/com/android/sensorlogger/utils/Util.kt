@@ -1,4 +1,4 @@
-package com.android.sensorlogger.Utils
+package com.android.sensorlogger.utils
 import com.android.sensorlogger.App
 import java.io.File
 import java.net.InetAddress

@@ -1,4 +1,4 @@
-package com.android.sensorlogger.Utils
+package com.android.sensorlogger.utils
 
 import android.media.MediaRecorder
 

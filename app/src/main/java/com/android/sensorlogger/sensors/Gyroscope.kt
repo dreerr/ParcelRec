@@ -3,7 +3,7 @@ package com.android.sensorlogger.sensors
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEventListener
-import com.android.sensorlogger.Utils.Config
+import com.android.sensorlogger.utils.Config
 
 class Gyroscope(context: Context, fileName: String) : SensorEventListener, SensorBase(context, fileName) {
 

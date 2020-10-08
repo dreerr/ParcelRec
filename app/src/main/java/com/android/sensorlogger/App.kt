@@ -1,7 +1,7 @@
 package com.android.sensorlogger
 
 import android.app.Application
-import com.android.sensorlogger.Utils.SessionManager
+import com.android.sensorlogger.utils.SessionManager
 import com.android.sensorlogger.networking.UploadManager
 import java.io.File
 

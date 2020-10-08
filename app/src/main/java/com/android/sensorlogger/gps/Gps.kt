@@ -1,18 +1,16 @@
-package com.agrolytics.agrolytics_android.utils
+package com.android.sensorlogger.gps
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.LOCATION_SERVICE
-import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import com.android.sensorlogger.App
-import com.android.sensorlogger.Utils.Logger
-import com.android.sensorlogger.Utils.PermissionHelper
+import com.android.sensorlogger.utils.Logger
+import com.android.sensorlogger.utils.PermissionHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

@@ -4,14 +4,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Handler
-import android.util.Log
-import com.android.sensorlogger.Utils.Config
-import com.android.sensorlogger.Utils.Logger
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import java.io.IOException
-import java.lang.Runnable
+import com.android.sensorlogger.utils.Logger
 import java.text.SimpleDateFormat
 import java.util.*
 

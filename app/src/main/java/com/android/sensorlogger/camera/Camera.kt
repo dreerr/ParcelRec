@@ -17,9 +17,8 @@ import android.view.Surface
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.android.sensorlogger.App
-import com.android.sensorlogger.Utils.Config
-import com.android.sensorlogger.Utils.Util
-import com.android.sensorlogger.Utils.Util.isOnline
+import com.android.sensorlogger.utils.Config
+import com.android.sensorlogger.utils.Util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

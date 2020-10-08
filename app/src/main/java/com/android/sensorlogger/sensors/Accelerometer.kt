@@ -7,8 +7,8 @@ import android.hardware.SensorEventListener
 import android.os.Handler
 import android.util.Log
 import com.android.sensorlogger.App
-import com.android.sensorlogger.Utils.Config
-import com.android.sensorlogger.Utils.TAG
+import com.android.sensorlogger.utils.Config
+import com.android.sensorlogger.utils.TAG
 import java.lang.RuntimeException
 
 class Accelerometer(context: Context, fileName: String) : SensorEventListener, SensorBase(context, fileName) {

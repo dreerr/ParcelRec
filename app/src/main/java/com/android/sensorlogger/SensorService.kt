@@ -7,9 +7,9 @@ import android.graphics.Color
 import android.os.*
 import android.util.Log
 import android.widget.Toast
-import com.agrolytics.agrolytics_android.utils.Gps
-import com.android.sensorlogger.Utils.Actions
-import com.android.sensorlogger.Utils.TAG
+import com.android.sensorlogger.gps.Gps
+import com.android.sensorlogger.utils.Actions
+import com.android.sensorlogger.utils.TAG
 import com.android.sensorlogger.camera.Camera
 import com.android.sensorlogger.networking.UploadManager
 import com.android.sensorlogger.sensors.Accelerometer

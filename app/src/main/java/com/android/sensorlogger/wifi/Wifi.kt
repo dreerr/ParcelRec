@@ -7,11 +7,10 @@ import android.content.IntentFilter
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Handler
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import com.android.sensorlogger.App
-import com.android.sensorlogger.Utils.Logger
+import com.android.sensorlogger.utils.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

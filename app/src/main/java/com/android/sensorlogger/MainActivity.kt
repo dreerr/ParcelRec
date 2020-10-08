@@ -4,15 +4,14 @@ import android.Manifest.permission.*
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.android.sensorlogger.Utils.Actions
+import com.android.sensorlogger.utils.Actions
 import kotlinx.android.synthetic.main.activity_main.*
-import com.android.sensorlogger.Utils.PermissionHelper
+import com.android.sensorlogger.utils.PermissionHelper
 import com.android.sensorlogger.camera.CameraSettings
 import com.android.sensorlogger.networking.UploadSettings
 
