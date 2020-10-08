@@ -9,7 +9,6 @@ class Gyroscope(context: Context, fileName: String) : SensorEventListener, Senso
 
     init {
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-        sampleRateMillis = 500
 
         thresholdX = Config.Sensor.GYRO_X_THRESHOLD
         thresholdY = Config.Sensor.GYRO_Y_THRESHOLD

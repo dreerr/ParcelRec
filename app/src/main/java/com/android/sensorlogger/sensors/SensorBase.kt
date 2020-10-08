@@ -6,6 +6,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Handler
 import android.util.Log
+import com.android.sensorlogger.Utils.Config
 import com.android.sensorlogger.Utils.Logger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -20,17 +21,10 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
     var sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     lateinit var sensor : Sensor
 
-    //Periodic handler for sensors
-    var sampleRateMillis : Long = 500   //Default sample rate, set it in implementation classes!
-    var timingHandler = Handler()
-
-    private val fakeListener = FakeListener()
-    private val periodicRegisterer = Runnable { sensorManager.registerListener(this@SensorBase, sensor, SensorManager.SENSOR_DELAY_NORMAL) }
-
-    //Periodic handler for logging
-    private val fileWriter = Runnable { writeToFile(context) }
-    private val fileSavingRate = 10000  //Period time of file saving in milliseconds
-    private val measurementChannel = Channel<SensorEvent>(100)
+    // Previous values
+    var prevX : Float? = null
+    var prevY : Float? = null
+    var prevZ : Float? = null
 
     //Threshold levels
     var thresholdX : Double = 0.0
@@ -42,61 +36,35 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        runBlocking {
-            measurementChannel.send(event!!)
-        }
-        sensorManager.unregisterListener(this)
+        if(event == null) return
+        val x = event.values[0]
+        val y = event.values[1]
+        val z = event.values[2]
 
-        //Make measurement after sampleRateMillis
-        timingHandler.postDelayed(periodicRegisterer, sampleRateMillis)
+        val thresholdExceeded = prevX == null ||
+                    kotlin.math.abs(prevX!! - x) > thresholdX ||
+                    kotlin.math.abs(prevY!! - y) > thresholdY ||
+                    kotlin.math.abs(prevZ!! - z) > thresholdZ
+
+        prevX = x
+        prevY = y
+        prevZ = z
+
+        if(thresholdExceeded) onThresholdExceeded(event)
     }
 
-    private fun writeToFile(context: Context) {
-        try {
-            GlobalScope.launch(Dispatchers.IO){
-
-                initLogFile()
-                var iterationCounter = 0
-
-                for (event in measurementChannel) {
-                    //Loop breaks when measurementChannel.close() is called
-                    val x = kotlin.math.abs(event.values[0])
-                    val y = kotlin.math.abs(event.values[1])
-                    val z = kotlin.math.abs(event.values[2])
-
-                    if (x > thresholdX || y > thresholdY || z > thresholdZ){
-                        val line = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) +
-                                ":${event.values[0]};${event.values[1]};${event.values[2]}\n"
-                        writeToFile(line)
-                    }
-
-                    iterationCounter += 1
-                    if (iterationCounter > (fileSavingRate/sampleRateMillis).toInt()){
-                        Log.d("Sensor", "File saved.")
-                        iterationCounter = 0
-                        closeFile()
-                    }
-                }
-                closeFile()
-            }
-        } catch (e: IOException) {
-            Log.e("Exception", "File write failed: $e")
-        }
+    open fun onThresholdExceeded(event: SensorEvent?) {
+        if(event==null) return
+        val line = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) +
+                ":${event.values.joinToString(";")}\n"
+        writeLine(line)
     }
 
     fun run(){
-        //FakeListener is needed to keep virtual sensors awake. This is a workaround to
-        //maintain the desired sampling rate.
-        sensorManager.registerListener(fakeListener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
-        periodicRegisterer.run()
-        fileWriter.run()
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
-    //Important! Call this on main activity (or parent service) destroy.
     fun stop(){
-        sensorManager.unregisterListener(fakeListener)
         sensorManager.unregisterListener(this)
-        timingHandler.removeCallbacks(periodicRegisterer)
-        measurementChannel.close()
     }
 }
