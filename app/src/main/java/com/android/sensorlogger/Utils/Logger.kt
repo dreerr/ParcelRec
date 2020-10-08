@@ -10,23 +10,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 open class Logger(open var context: Context, var fileNameTag : String) {
-    private val appDirectory = File(context.getExternalFilesDir(null).toString() + "/SensorLogger")
-    private val logDirectory = File("$appDirectory/logs")
     private lateinit var logFile : File
     private var bufferedWriter: BufferedWriter? = null
     private var lastCreated = 0L
 
-    init {
-        if (!appDirectory.exists()) {
-            appDirectory.mkdir()
-        }
-        if (!logDirectory.exists()) {
-            logDirectory.mkdir()
-        }
-    }
 
     private fun initNewFile(){
-        logFile = File(logDirectory, fileNameTag + SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US).format(Date()) + ".txt")
+        logFile = Util.getFile(fileNameTag, "txt")
+        logFile = File(App.storage, fileNameTag + SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US).format(Date()) + ".txt")
         bufferedWriter = logFile.bufferedWriter(Charset.defaultCharset(), 16 * 1024)
         lastCreated = Date().time
         Log.d(TAG, "Created new file ${logFile.name}")

@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.android.sensorlogger.App
 import com.android.sensorlogger.Utils.Config
+import com.android.sensorlogger.Utils.Util
 import com.android.sensorlogger.Utils.Util.isOnline
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -170,8 +171,7 @@ class Camera(context: Context) {
             recording = true
 
             //New file:
-            fileName = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) + ".mp4"
-            outputFile = File(logDirectory, fileName)
+            outputFile = Util.getFile("CAM", "mp4")
             recorder = createRecorder(recorderSurface)
 
             session.setRepeatingRequest(recordRequest, null, cameraHandler)

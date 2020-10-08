@@ -1,14 +1,10 @@
 package com.android.sensorlogger.Utils
-
-import android.content.Context
-import android.hardware.Sensor
-import android.hardware.SensorManager
-import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.android.sensorlogger.App
+import java.io.File
 import java.net.InetAddress
 import java.net.UnknownHostException
+import java.text.SimpleDateFormat
+import java.util.*
 
 object Util {
 
@@ -21,10 +17,12 @@ object Util {
         }
         return false
     }
+    fun getFile(fileNameTag: String, extension: String): File {
+        return File(
+            App.storage, fileNameTag + SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US).format(
+                Date()
+            ) + "." + extension)
 
-    fun isSensorAvailable(sensor : Int, context: Context) : Boolean{
-        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        return sensorManager.getDefaultSensor(sensor) != null
     }
 }
 

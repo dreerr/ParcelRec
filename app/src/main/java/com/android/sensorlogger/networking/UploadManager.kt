@@ -2,6 +2,7 @@ package com.android.sensorlogger.networking
 
 import android.content.Context
 import android.util.Log
+import com.android.sensorlogger.App
 import com.android.sensorlogger.Utils.TAG
 import com.android.sensorlogger.Utils.Util
 import kotlinx.coroutines.Dispatchers
@@ -11,13 +12,12 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class UploadManager(val context: Context) {
-    private val logDirectory = File(context.getExternalFilesDir(null).toString() + "/SensorLogger/logs")
     private var filesToUpload = mutableListOf<File>()
     private var apiService = ApiService()
     private var isActive = false
 
     init {
-        logDirectory.walk().forEach {
+        App.storage.walk().forEach {
             if(!it.isFile) return@forEach
             filesToUpload.add(it)
         }
@@ -27,7 +27,7 @@ class UploadManager(val context: Context) {
     fun add(file:File) {
         if(!filesToUpload.contains(file)) {
             filesToUpload.add(file)
-            Log.d(TAG, "${file.name} was added for upload")
+            Log.d(TAG, "${file.name} was added for upload, ${filesToUpload.size} in queue")
             uploadFiles()
         }
     }
@@ -40,7 +40,6 @@ class UploadManager(val context: Context) {
                 Log.d(TAG, "Waiting 30s for network")
                 delay(30_000)
             }
-            Log.d(TAG, "${filesToUpload.size} Files to upload!")
 
             filesToUpload.toMutableList().forEach {
                 if (it.length() <= 0) {
