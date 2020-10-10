@@ -29,7 +29,6 @@ class SensorService : Service(){
     private var camera : Camera? = null
     private var gps : Gps? = null
     private var wifi : Wifi? = null
-    private var uploadManager : UploadManager? = null
 
     override fun onBind(intent: Intent): IBinder? {
         Log.d(TAG, "Some component wants to bind with the service")
@@ -94,7 +93,7 @@ class SensorService : Service(){
         accelerometer?.run()
         gyroscope?.run()
         magnetometer?.run()
-        camera?.start()
+        camera?.run()
         gps?.run()
     }
 
