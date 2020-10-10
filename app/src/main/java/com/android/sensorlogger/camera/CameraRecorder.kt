@@ -247,11 +247,10 @@ class CameraRecorder(context: Context, args: CameraRecorderArgs) {
 
     companion object {
         private const val RECORDER_VIDEO_BITRATE: Int = 10_000_000
-        private const val MIN_REQUIRED_RECORDING_TIME_MILLIS: Long = 1000L
     }
 }
 
-data class CameraRecorderArgs(
+class CameraRecorderArgs(
     val cameraId: String,
     val fps: Int,
     val width: Int,
