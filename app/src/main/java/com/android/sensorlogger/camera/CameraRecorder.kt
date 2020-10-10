@@ -31,6 +31,7 @@ import android.util.Log
 import android.util.Range
 import android.view.Surface
 import android.webkit.MimeTypeMap
+import com.android.sensorlogger.App
 import com.android.sensorlogger.utils.TAG
 import com.android.sensorlogger.utils.Util
 import kotlinx.coroutines.*
@@ -232,7 +233,7 @@ class CameraRecorder(context: Context, args: CameraRecorderArgs) {
         }
     }
 
-    fun stop(): File? {
+    fun stop() {
         try {
             camera.close()
         } catch (exc: Throwable) {
@@ -241,7 +242,7 @@ class CameraRecorder(context: Context, args: CameraRecorderArgs) {
         cameraThread.quitSafely()
         recorder.release()
         recorderSurface.release()
-        return outputFile
+        App.uploadManager.add(outputFile)
     }
 
     companion object {
