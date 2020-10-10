@@ -8,9 +8,10 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
-import com.android.sensorlogger.App
 import com.android.sensorlogger.utils.Logger
 import com.android.sensorlogger.utils.PermissionHelper
+import com.android.sensorlogger.utils.TAG
+import com.android.sensorlogger.utils.Util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ import java.util.*
 class Gps(context: Context) : LocationListener, Logger(context, "GPS")
 {
     private val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
+    private var lastLoc : Location? = null
 
     @SuppressLint("MissingPermission")
     fun run(){
@@ -35,15 +37,15 @@ class Gps(context: Context) : LocationListener, Logger(context, "GPS")
     }
 
     override fun onLocationChanged(loc: Location) {
-        //Low rate, so can be done in every iteration
-        if (App.inMovement){
-            GlobalScope.launch(Dispatchers.IO) {
-                val line = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) + ":" +
-                        loc.latitude.toString() + ";"
-                        loc.longitude.toString() + "\n"
-                Log.d("GPS", "Logging coordinates: ${loc.latitude} ${loc.longitude}")
-                writeLine(line)
-            }
+        GlobalScope.launch(Dispatchers.IO) {
+
+            if(lastLoc?.latitude == loc.latitude &&
+                lastLoc?.longitude == loc.longitude) return@launch
+
+            val line = "${Util.simpleTime};${loc.latitude};${loc.longitude}\n"
+            Log.d(TAG, "Logging coordinates: ${loc.latitude}, ${loc.longitude}")
+
+            writeLine(line)
         }
     }
 
