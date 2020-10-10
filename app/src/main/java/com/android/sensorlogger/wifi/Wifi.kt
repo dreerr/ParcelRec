@@ -11,6 +11,7 @@ import android.util.Log
 import android.widget.Toast
 import com.android.sensorlogger.App
 import com.android.sensorlogger.utils.Logger
+import com.android.sensorlogger.utils.Util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -57,7 +58,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
                 if (!availableNetworks.contains(it)){
                     //New network found
                     availableNetworks.add(it)
-                    val line = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) + ";${it.SSID};${it.BSSID};;\n"
+                    val line = "${Util.simpleTime};${it.SSID};${it.BSSID};;\n"
                     writeLine(line)
                 }
             }
@@ -67,7 +68,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
                 if (!results.contains(it)){
                     //Lost a network
                     elementToRemove.add(it)
-                    val line = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) + ";;;${it.SSID};${it.BSSID}\n"
+                    val line = "${Util.simpleTime};;;${it.SSID};${it.BSSID}\n"
                     writeLine(line)
                 }
             }

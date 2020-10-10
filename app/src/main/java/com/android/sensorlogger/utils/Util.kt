@@ -18,12 +18,14 @@ object Util {
         return false
     }
     fun getFile(fileNameTag: String, extension: String): File {
-        return File(
-            App.storage, fileNameTag + SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US).format(
-                Date()
-            ) + "." + extension)
+        return File(App.storage, "$fileNameTag$simpleTime.$extension")
 
     }
+    @JvmStatic
+    val simpleTime: String
+        get() {
+            return SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date())
+        }
 }
 
 val Any.TAG: String

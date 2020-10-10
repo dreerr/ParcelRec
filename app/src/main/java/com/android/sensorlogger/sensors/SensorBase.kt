@@ -5,6 +5,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import com.android.sensorlogger.utils.Logger
+import com.android.sensorlogger.utils.Util
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -48,8 +49,7 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
 
     open fun onThresholdExceeded(event: SensorEvent?) {
         if(event==null) return
-        val line = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date()) +
-                ":${event.values.joinToString(";")}\n"
+        val line = "${Util.simpleTime};${event.values.joinToString(";")}\n"
         writeLine(line)
     }
 
