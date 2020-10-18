@@ -234,13 +234,17 @@ class CameraRecorder(context: Context, args: CameraRecorderArgs) {
     }
 
     fun stop() {
-        recorder.stop()
+        try {
+            recorder.stop()
+        } catch (exc: Throwable) {
+            Log.e(TAG, "Error closing recorder", exc)
+        }
         try {
             camera.close()
         } catch (exc: Throwable) {
             Log.e(TAG, "Error closing camera", exc)
         }
-        Log.e(TAG, "cameraThread.quitSafely")
+        Log.d(TAG, "cameraThread.quitSafely")
         cameraThread.quitSafely()
         recorder.release()
         recorderSurface.release()
