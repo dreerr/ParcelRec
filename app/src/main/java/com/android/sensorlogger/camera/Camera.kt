@@ -20,52 +20,40 @@ import com.android.sensorlogger.App
 import com.android.sensorlogger.utils.Config
 import com.android.sensorlogger.utils.TAG
 import com.android.sensorlogger.utils.Util
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class Camera(context: Context) {
     private val context = context
-    private val uploadHandler = Handler()
-    private var uploadTask = Runnable {
-        Log.d(TAG, "Running uploadTask")
-        stopRecording()
-        startRecording()
-    }
-    private var uploadPeriod : Long = App.sessionManager.getUploadRate().toLong() * 1000
     private var recording = false
-    private val recordHandler = Handler()
-    private val movementChecker = Runnable { movementListener() }
     private var cameraRecorder: CameraRecorder? = null
+    private var uploadJob: Job? = null
 
-    // TODO: Rewrite fucking movermentListener
-    private fun movementListener(){
-        var movementCheckerStarted = false
-        if (App.inMovement && !recording){
+    fun run() {
+        App.accelerometer?.thresholdStartedListeners?.add {
             startRecording()
-            uploadHandler.postDelayed(uploadTask, uploadPeriod)
         }
-        if (!App.inMovement && recording){
-            Log.d("CAM", "User has not moved for 30 seconds, stopped recording and started to upload video.")
-            uploadHandler.removeCallbacks(uploadTask)
+        App.accelerometer?.thresholdEndedListeners?.add {
+            uploadJob?.cancel()
             stopRecording()
-            movementCheckerStarted = true
         }
+    }
 
-        //movementChecker is started when uploadVideo is called
-        if (!movementCheckerStarted) recordHandler.postDelayed(movementChecker,1000)
+    fun stop(){
+        if (recording){
+            stopRecording()
+        }
     }
 
     private fun startRecording() {
         if (recording) return
-        Log.d(TAG, "Starting new recording")
+        Log.i(TAG, "Starting new recording")
         val args = CameraRecorderArgs(
             App.sessionManager.getCamId()!!, //TODO: Better init!!
             App.sessionManager.getFps(),
@@ -74,27 +62,18 @@ class Camera(context: Context) {
         )
         cameraRecorder = CameraRecorder(context, args)
         recording = true
+        uploadJob = CoroutineScope(Dispatchers.IO).launch {
+            delay(App.sessionManager.getUploadRate() * 1000L)
+            Log.i("Camera", "Circle Camera")
+            stopRecording()
+            startRecording()
+        }
     }
      private fun stopRecording() {
          if(!recording) return
-         Log.d(TAG, "Stopping recording")
+         Log.i(TAG, "Stopping recording")
          cameraRecorder?.stop()
          cameraRecorder = null
          recording = false
      }
-
-
-    fun run() {
-        recordHandler.postDelayed(movementChecker, 0)
-    }
-
-    fun stop(){
-        recordHandler.removeCallbacks(movementChecker)
-        uploadHandler.removeCallbacks(uploadTask)
-        if (recording){
-            stopRecording()
-        }
-     }
-
-
 }
