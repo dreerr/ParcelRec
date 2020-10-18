@@ -11,7 +11,6 @@ import com.android.sensorlogger.gps.Gps
 import com.android.sensorlogger.utils.Actions
 import com.android.sensorlogger.utils.TAG
 import com.android.sensorlogger.camera.Camera
-import com.android.sensorlogger.networking.UploadManager
 import com.android.sensorlogger.sensors.Accelerometer
 import com.android.sensorlogger.sensors.Gyroscope
 import com.android.sensorlogger.sensors.Magnetometer
@@ -19,16 +18,8 @@ import com.android.sensorlogger.wifi.Wifi
 
 
 class SensorService : Service(){
-
     private var isServiceStarted = false
     private var wakeLock: PowerManager.WakeLock? = null
-
-    private var accelerometer : Accelerometer? = null
-    private var gyroscope : Gyroscope? = null
-    private var magnetometer: Magnetometer? = null
-    private var camera : Camera? = null
-    private var gps : Gps? = null
-    private var wifi : Wifi? = null
 
     override fun onBind(intent: Intent): IBinder? {
         Log.d(TAG, "Some component wants to bind with the service")
@@ -75,26 +66,12 @@ class SensorService : Service(){
                 }
             }
 
-        fun <T> tryOrNull(f: () -> T) =
-            try {
-                f()
-            } catch (e: Exception) {
-                Log.e("SEN", "Could not initialize: ${e.localizedMessage}")
-                null
-            }
-        accelerometer = tryOrNull { Accelerometer(this, "ACC") }
-        gyroscope = tryOrNull { Gyroscope(this, "GYRO") }
-        magnetometer = tryOrNull { Magnetometer(this, "MAG") }
-        gps = tryOrNull { Gps(this) }
-        camera = tryOrNull { Camera(this) }
-        wifi = tryOrNull { Wifi(this) }
-
-        wifi?.run()
-        accelerometer?.run()
-        gyroscope?.run()
-        magnetometer?.run()
-        camera?.run()
-        gps?.run()
+        App.wifi?.run()
+        App.accelerometer?.run()
+        App.gyroscope?.run()
+        App.magnetometer?.run()
+        App.camera?.run()
+        App.gps?.run()
     }
 
     private fun stopService() {
@@ -112,12 +89,12 @@ class SensorService : Service(){
             Log.d(TAG, "Service stopped without being started: ${e.message}")
         }
         isServiceStarted = false
-        wifi?.stop()
-        accelerometer?.stop()
-        gyroscope?.stop()
-        magnetometer?.stop()
-        gps?.stop()
-        camera?.stop()
+        App.wifi?.stop()
+        App.accelerometer?.stop()
+        App.gyroscope?.stop()
+        App.magnetometer?.stop()
+        App.gps?.stop()
+        App.camera?.stop()
     }
 
     private fun createNotification(): Notification {
