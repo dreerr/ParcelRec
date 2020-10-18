@@ -11,19 +11,42 @@ import android.util.Log
 import android.widget.Toast
 import com.android.sensorlogger.App
 import com.android.sensorlogger.utils.Logger
+import com.android.sensorlogger.utils.TAG
 import com.android.sensorlogger.utils.Util
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 class Wifi(context : Context) : Logger(context, "WIFI") {
     private var wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-    private var scanHandler = Handler()
-    private var scanRunnable = Runnable { scan() }
+    var scanJob: Job? = null
     private var availableNetworks = mutableListOf<ScanResult>()
-    private var loggingWifi = false
+
+    fun run(){
+        if (!wifiManager.isWifiEnabled){
+            Toast.makeText(context, "Wifi is turned off, SSIDs will not be logged.", Toast.LENGTH_LONG).show()
+            return
+        }
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+        context.registerReceiver(wifiScanReceiver, intentFilter)
+
+        App.accelerometer?.thresholdStartedListeners?.add {
+            scanJob = GlobalScope.launch {
+                while (true) {
+                    val success = wifiManager.startScan()
+                    if (!success) {
+                        scanFailure()
+                    }
+                    delay(15_000L)
+                }
+            }
+        }
+
+        App.accelerometer?.thresholdEndedListeners?.add {
+            scanJob?.cancel()
+        }
+    }
 
     private val wifiScanReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -36,66 +59,42 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
         }
     }
 
-    private fun scan(){
-        if (App.inMovement){
-            val success = wifiManager.startScan()
-            if (!success) {
-                scanFailure()
-            }
-            scanHandler.postDelayed(scanRunnable, 15000)
-        }
-    }
-
     fun scanFailure(){
         Toast.makeText(context, "SSIDs will not be logged.", Toast.LENGTH_LONG).show()
     }
 
-    private fun scanSuccess() {
+    private fun scanSuccess() = GlobalScope.launch(Dispatchers.IO) {
         val results = wifiManager.scanResults
-        GlobalScope.launch(Dispatchers.IO) {
-            Log.d("WIFI", "Wifi scan success.")
-            results.forEach {
-                if (!availableNetworks.contains(it)){
-                    //New network found
-                    availableNetworks.add(it)
-                    val line = "${Util.simpleTime};${it.SSID};${it.BSSID};;\n"
-                    writeLine(line)
-                }
+        Log.d("WIFI", "Wifi scan success.")
+        results.forEach {
+            if (!availableNetworks.contains(it)){
+                //New network found
+                availableNetworks.add(it)
+                val line = "${Util.simpleTime};${it.SSID};${it.BSSID};;\n"
+                writeLine(line)
             }
+        }
 
-            val elementToRemove = arrayListOf<ScanResult>()
-            availableNetworks.forEach {
-                if (!results.contains(it)){
-                    //Lost a network
-                    elementToRemove.add(it)
-                    val line = "${Util.simpleTime};;;${it.SSID};${it.BSSID}\n"
-                    writeLine(line)
-                }
+        val elementToRemove = arrayListOf<ScanResult>()
+        availableNetworks.forEach {
+            if (!results.contains(it)){
+                //Lost a network
+                elementToRemove.add(it)
+                val line = "${Util.simpleTime};;;${it.SSID};${it.BSSID}\n"
+                writeLine(line)
             }
+        }
 
-            //Remove elements that were lost
-            elementToRemove.forEach {
-                availableNetworks.remove(it)
-            }
+        //Remove elements that were lost
+        elementToRemove.forEach {
+            availableNetworks.remove(it)
         }
     }
 
-    fun run(){
-        if (!wifiManager.isWifiEnabled){
-            Toast.makeText(context, "Wifi is turned off, SSIDs will not be logged.", Toast.LENGTH_LONG).show()
-            loggingWifi = false
-        }
-        else{
-            loggingWifi = true
-            val intentFilter = IntentFilter()
-            intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-            context.registerReceiver(wifiScanReceiver, intentFilter)
-            scan()
-        }
-    }
+
 
     fun stop(){
-        scanHandler.removeCallbacks(scanRunnable)
+        scanJob?.cancel()
         context.unregisterReceiver(wifiScanReceiver)
         closeFile()
     }
