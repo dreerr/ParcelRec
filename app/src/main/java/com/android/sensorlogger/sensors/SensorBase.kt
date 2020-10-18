@@ -4,14 +4,18 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import com.android.sensorlogger.utils.Logger
-import com.android.sensorlogger.utils.Util
+import android.util.Log
+import com.android.sensorlogger.utils.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 open class SensorBase(context: Context, filename_tag:String) : SensorEventListener, Logger(context, filename_tag)  {
-    //Sensor variables
+    // Sensor Variables
     var sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     lateinit var sensor : Sensor
 
@@ -20,13 +24,22 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
     var prevY : Float? = null
     var prevZ : Float? = null
 
-    //Threshold levels
+    // Threshold Levels
     var thresholdX : Double = 0.0
-    var thresholdY : Double  = 0.0
-    var thresholdZ : Double  = 0.0
+    var thresholdY : Double = 0.0
+    var thresholdZ : Double = 0.0
+
+    // Threshold Events
+    var inThreshold = false
+    var thresholdDidEnd: Job? = null
+    var thresholdStartedListeners = ArrayList<()->Unit>()
+    var thresholdEndedListeners = ArrayList<()->Unit>()
+
+
+
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        //Nothing to do yet.
+        // Nothing to do yet.
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
@@ -49,8 +62,27 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
 
     open fun onThresholdExceeded(event: SensorEvent?) {
         if(event==null) return
+
+        // Do Logging
         val line = "${Util.simpleTime};${event.values.joinToString(";")}\n"
         writeLine(line)
+
+        // Handle Threshold Events
+        if(thresholdDidEnd == null || thresholdDidEnd!!.isCompleted) {
+            Log.i(sensor.name,"onThresholdStarted")
+            inThreshold = true
+            GlobalScope.launch {
+                for(l in thresholdStartedListeners) l.invoke()
+            }
+        } else {
+            thresholdDidEnd?.cancel()
+        }
+        thresholdDidEnd = GlobalScope.launch {
+            delay(Config.Sensor.MOVEMENT_DELAY)
+            Log.i(sensor.name, "onThresholdEnded")
+            inThreshold = false
+            for(l in thresholdEndedListeners) l.invoke()
+        }
     }
 
     fun run(){
@@ -59,6 +91,7 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
 
     fun stop(){
         sensorManager.unregisterListener(this)
+        if(inThreshold) for(l in thresholdEndedListeners) l.invoke()
         closeFile()
     }
 }
