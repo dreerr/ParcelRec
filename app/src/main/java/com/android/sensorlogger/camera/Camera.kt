@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.android.sensorlogger.App
 import com.android.sensorlogger.utils.Config
+import com.android.sensorlogger.utils.TAG
 import com.android.sensorlogger.utils.Util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -34,8 +35,9 @@ class Camera(context: Context) {
     private val context = context
     private val uploadHandler = Handler()
     private var uploadTask = Runnable {
-        Log.d("CAM", "Uploading video with periodic task.")
-        uploadVideo()
+        Log.d(TAG, "Running uploadTask")
+        stopRecording()
+        startRecording()
     }
     private var uploadPeriod : Long = App.sessionManager.getUploadRate().toLong() * 1000
     private var recording = false
@@ -43,13 +45,12 @@ class Camera(context: Context) {
     private val movementChecker = Runnable { movementListener() }
     private var cameraRecorder: CameraRecorder? = null
 
+    // TODO: Rewrite fucking movermentListener
     private fun movementListener(){
-        Log.d("CAM", "Movementlistener called.")
         var movementCheckerStarted = false
         if (App.inMovement && !recording){
             startRecording()
             uploadHandler.postDelayed(uploadTask, uploadPeriod)
-            Log.d("CAM", "User is in movement, recording started...")
         }
         if (!App.inMovement && recording){
             Log.d("CAM", "User has not moved for 30 seconds, stopped recording and started to upload video.")
@@ -64,6 +65,7 @@ class Camera(context: Context) {
 
     private fun startRecording() {
         if (recording) return
+        Log.d(TAG, "Starting new recording")
         val args = CameraRecorderArgs(
             App.sessionManager.getCamId()!!, //TODO: Better init!!
             App.sessionManager.getFps(),
@@ -75,28 +77,21 @@ class Camera(context: Context) {
     }
      private fun stopRecording() {
          if(!recording) return
-         val file = cameraRecorder?.stop()
-         if (file != null) {
-             App.uploadManager.add(file)
-         }
+         Log.d(TAG, "Stopping recording")
+         cameraRecorder?.stop()
          cameraRecorder = null
          recording = false
      }
 
-    private fun uploadVideo() {
-        stopRecording()
-        startRecording()
-    }
 
     fun run() {
-        recordHandler.postDelayed(movementChecker, 1000)
+        recordHandler.postDelayed(movementChecker, 0)
     }
 
     fun stop(){
         recordHandler.removeCallbacks(movementChecker)
         uploadHandler.removeCallbacks(uploadTask)
         if (recording){
-            Log.d("CAM", "Measurement has been stopped, uploading video.")
             stopRecording()
         }
      }

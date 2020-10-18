@@ -14,7 +14,7 @@ import java.lang.RuntimeException
 class Accelerometer(context: Context, fileName: String) : SensorEventListener, SensorBase(context, fileName) {
     private val movementDelay : Long = 30000
     private val movementHandler = Handler()
-    private val movementResetRunnable = Runnable{
+    private val movementResetRunnable = Runnable {
         App.inMovement = false
         Log.d(TAG, "Not moved for ${movementDelay/1000} seconds. Resetting movement state.")
     }
@@ -38,7 +38,6 @@ class Accelerometer(context: Context, fileName: String) : SensorEventListener, S
         if (App.inMovement){
             movementHandler.removeCallbacks(movementResetRunnable)
             movementHandler.postDelayed(movementResetRunnable, movementDelay)
-            Log.d(TAG, "Threshold exceeded, reset runnable.")
         } else {
             App.inMovement = true
             movementHandler.postDelayed(movementResetRunnable, movementDelay)
