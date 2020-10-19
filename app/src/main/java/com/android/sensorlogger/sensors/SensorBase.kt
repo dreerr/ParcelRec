@@ -10,7 +10,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -34,8 +33,6 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
     var thresholdDidEnd: Job? = null
     var thresholdStartedListeners = ArrayList<()->Unit>()
     var thresholdEndedListeners = ArrayList<()->Unit>()
-
-
 
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -92,6 +89,6 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
     fun stop(){
         sensorManager.unregisterListener(this)
         if(inThreshold) for(l in thresholdEndedListeners) l.invoke()
-        closeFile()
+        closeLog()
     }
 }

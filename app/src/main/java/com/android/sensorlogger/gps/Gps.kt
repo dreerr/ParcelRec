@@ -15,8 +15,6 @@ import com.android.sensorlogger.utils.Util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class Gps(context: Context) : LocationListener, Logger(context, "GPS")
@@ -33,7 +31,7 @@ class Gps(context: Context) : LocationListener, Logger(context, "GPS")
 
     fun stop(){
         locationManager.removeUpdates(this)
-        closeFile()
+        closeLog()
     }
 
     override fun onLocationChanged(loc: Location) {

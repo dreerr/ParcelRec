@@ -30,15 +30,11 @@ import android.os.HandlerThread
 import android.util.Log
 import android.util.Range
 import android.view.Surface
-import android.webkit.MimeTypeMap
 import com.android.sensorlogger.App
 import com.android.sensorlogger.utils.TAG
 import com.android.sensorlogger.utils.Util
 import kotlinx.coroutines.*
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.RuntimeException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException

@@ -7,14 +7,8 @@ import android.graphics.Color
 import android.os.*
 import android.util.Log
 import android.widget.Toast
-import com.android.sensorlogger.gps.Gps
-import com.android.sensorlogger.utils.Actions
+import com.android.sensorlogger.utils.SensorServiceActions
 import com.android.sensorlogger.utils.TAG
-import com.android.sensorlogger.camera.Camera
-import com.android.sensorlogger.sensors.Accelerometer
-import com.android.sensorlogger.sensors.Gyroscope
-import com.android.sensorlogger.sensors.Magnetometer
-import com.android.sensorlogger.wifi.Wifi
 
 
 class SensorService : Service(){
@@ -33,8 +27,9 @@ class SensorService : Service(){
             val action = intent.action
             Log.d(TAG, "using an intent with action $action")
             when (action) {
-                Actions.START.name -> startService()
-                Actions.STOP.name -> stopService()
+                SensorServiceActions.START.name -> startService()
+                SensorServiceActions.STOP.name -> stopService()
+                SensorServiceActions.ROTATE.name -> rotate()
                 else -> Log.d(TAG, "This should never happen. No action in the received intent")
             }
         } else {
@@ -95,6 +90,15 @@ class SensorService : Service(){
         App.magnetometer?.stop()
         App.gps?.stop()
         App.camera?.stop()
+    }
+
+    private fun rotate() {
+        App.wifi?.rotate()
+        App.accelerometer?.rotate()
+        App.gyroscope?.rotate()
+        App.magnetometer?.rotate()
+        App.gps?.rotate()
+        App.camera?.rotate()
     }
 
     private fun createNotification(): Notification {

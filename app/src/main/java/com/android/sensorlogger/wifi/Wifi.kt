@@ -6,16 +6,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
-import android.os.Handler
 import android.util.Log
 import android.widget.Toast
 import com.android.sensorlogger.App
+import com.android.sensorlogger.utils.Config
 import com.android.sensorlogger.utils.Logger
-import com.android.sensorlogger.utils.TAG
 import com.android.sensorlogger.utils.Util
 import kotlinx.coroutines.*
-import java.text.SimpleDateFormat
-import java.util.*
 
 class Wifi(context : Context) : Logger(context, "WIFI") {
     private var wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -32,13 +29,13 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
         context.registerReceiver(wifiScanReceiver, intentFilter)
 
         App.accelerometer?.thresholdStartedListeners?.add {
-            scanJob = GlobalScope.launch {
+            scanJob = GlobalScope.launch(Dispatchers.IO) {
                 while (true) {
                     val success = wifiManager.startScan()
                     if (!success) {
                         scanFailure()
                     }
-                    delay(15_000L)
+                    delay(Config.Wifi.INTERVAL)
                 }
             }
         }
@@ -96,7 +93,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
     fun stop(){
         scanJob?.cancel()
         context.unregisterReceiver(wifiScanReceiver)
-        closeFile()
+        closeLog()
     }
 
 }

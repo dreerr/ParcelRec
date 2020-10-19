@@ -2,11 +2,8 @@ package com.android.sensorlogger.sensors
 
 import android.content.Context
 import android.hardware.Sensor
-import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import android.os.Handler
 import android.util.Log
-import com.android.sensorlogger.App
 import com.android.sensorlogger.utils.Config
 import com.android.sensorlogger.utils.TAG
 import java.lang.RuntimeException

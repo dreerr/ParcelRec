@@ -1,24 +1,24 @@
 package com.android.sensorlogger
 
 import android.Manifest.permission.*
+import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.android.sensorlogger.utils.Actions
-import kotlinx.android.synthetic.main.activity_main.*
-import com.android.sensorlogger.utils.PermissionHelper
 import com.android.sensorlogger.camera.CameraSettings
 import com.android.sensorlogger.networking.UploadSettings
+import com.android.sensorlogger.utils.PermissionHelper
+import com.android.sensorlogger.utils.SensorServiceActions
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 
-    var statisticsHandler = Handler()
-    var statisticsUpdater = Runnable { updateStatistics() }
+    var statsJob : Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,12 +51,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         uploadButton.setOnClickListener {
-            var serviceIntent = Intent(this, SensorService::class.java)
-            serviceIntent.putExtra("UPLOAD_REQUEST", 1)
-            startForegroundService(serviceIntent)
+            actionOnService(SensorServiceActions.ROTATE)
         }
 
-        statisticsHandler.postDelayed(statisticsUpdater, 1000)
+        statsJob = GlobalScope.launch {
+            while(isActive) {
+                runOnUiThread {
+                    files_in_queue.text = App.uploadManager.filesToUpload.size.toString()
+                    network_traffic.text = "${App.networkTraffic} MByte"
+                }
+                delay(1_000)
+            }
+        }
+    }
+
+    private fun updateStats() {
+
     }
 
     private fun startMeasurement(){
@@ -66,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         cameraSettingButton.visibility = View.GONE
         uploadSettingButton.visibility = View.GONE
 
-        actionOnService(Actions.START)
+        actionOnService(SensorServiceActions.START)
     }
 
     private fun stopMeasurement(){
@@ -76,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         cameraSettingButton.visibility = View.VISIBLE
         uploadSettingButton.visibility = View.VISIBLE
 
-        actionOnService(Actions.STOP)
+        actionOnService(SensorServiceActions.STOP)
     }
 
     private fun isMeasurementRunning(): Boolean {
@@ -89,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    private fun actionOnService(action: Actions) {
+    private fun actionOnService(action: SensorServiceActions) {
         Intent(this, SensorService::class.java).also {
             it.action = action.name
             startForegroundService(it)
@@ -97,9 +107,17 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         if (!PermissionHelper.hasAllPermissions(this)) {
-            Toast.makeText(this, "All permissions are needed to run this application", Toast.LENGTH_LONG)
+            Toast.makeText(
+                this,
+                "All permissions are needed to run this application",
+                Toast.LENGTH_LONG
+            )
                 .show()
             if (!PermissionHelper.shouldShowRequestPermissionRationale(this)) {
                 // Permission denied with checking "Do not ask again".
@@ -108,12 +126,6 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
         recreate()
-    }
-
-    private fun updateStatistics(){
-        last_upload.text = App.lastUpload
-        network_traffic.text = "${App.networkTraffic} MByte"
-        statisticsHandler.postDelayed(statisticsUpdater, 1000)
     }
 
     private fun requestPermissionsIfNeeded(){
@@ -139,6 +151,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        statisticsHandler.removeCallbacks(statisticsUpdater)
+        statsJob?.cancel()
     }
 }

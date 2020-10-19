@@ -13,7 +13,7 @@ open class Logger(open var context: Context, var fileNameTag : String) {
     private var bufferedWriter: BufferedWriter? = null
     private var lastCreated = 0L
 
-    private fun initNewFile(){
+    private fun newLog(){
         logFile = Util.getFile(fileNameTag, "txt")
         bufferedWriter = logFile?.bufferedWriter(Charset.defaultCharset(), 16 * 1024)
         lastCreated = Date().time
@@ -21,17 +21,19 @@ open class Logger(open var context: Context, var fileNameTag : String) {
     }
 
     fun writeLine(line : String) {
-        if(lastCreated == 0L) initNewFile()
-        val now = Date().time
-        if((now - lastCreated) > 1_000 * App.sessionManager.getUploadRate()) {
-            closeFile()
-            initNewFile()
-            lastCreated = now
+        if(lastCreated == 0L) newLog()
+        if((Date().time - lastCreated) > 1_000 * App.sessionManager.getUploadRate()) {
+            rotate()
         }
         bufferedWriter?.write(line)
     }
 
-    fun closeFile(){
+    fun rotate() {
+        closeLog()
+        newLog()
+    }
+
+    fun closeLog(){
         if(logFile==null) return
         bufferedWriter?.close()
         Log.d(TAG, "Closed file ${logFile?.name}")
