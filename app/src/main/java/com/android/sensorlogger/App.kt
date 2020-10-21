@@ -4,7 +4,7 @@ import android.app.Application
 import android.util.Log
 import com.android.sensorlogger.camera.Camera
 import com.android.sensorlogger.gps.Gps
-import com.android.sensorlogger.utils.SessionManager
+import com.android.sensorlogger.utils.Settings
 import com.android.sensorlogger.networking.UploadManager
 import com.android.sensorlogger.sensors.Accelerometer
 import com.android.sensorlogger.sensors.Gyroscope
@@ -16,11 +16,8 @@ import java.io.File
 class App : Application() {
     companion object {
         lateinit var uploadManager : UploadManager
-        lateinit var sessionManager : SessionManager
-        var inMovement = false
-        lateinit var storage: File
-        var lastUpload = "-"
-        var networkTraffic = 0.0
+        lateinit var settings : Settings
+        lateinit var storageDir: File
 
         var accelerometer : Accelerometer? = null
         var gyroscope : Gyroscope? = null
@@ -32,8 +29,8 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        storage = applicationContext.getExternalFilesDir(null)!!
-        sessionManager = SessionManager(applicationContext)
+        storageDir = applicationContext.getExternalFilesDir(null)!!
+        settings = Settings(applicationContext)
         uploadManager = UploadManager(applicationContext)
 
         // Initialize all Loggers

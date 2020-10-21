@@ -3,20 +3,34 @@ package com.android.sensorlogger.networking
 import android.content.Context
 import android.util.Log
 import com.android.sensorlogger.App
+import com.android.sensorlogger.utils.Config
 import com.android.sensorlogger.utils.TAG
 import com.android.sensorlogger.utils.Util
 import kotlinx.coroutines.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.Response
 import java.io.File
+import java.io.IOException
+import java.nio.file.Files
 
 class UploadManager(val context: Context) {
-    var filesToUpload = mutableListOf<File>()
-    private var apiService = ApiService()
+    private var filesToUpload = mutableListOf<File>()
     private var uploadJob: Job? = null
+    private val client = OkHttpClient()
+    private var totalUploads = 0
+    var totalTraffic = 0L
+        private set
+    val status: String
+        get() = "${filesToUpload.size.toString()} / ${totalUploads.toString()}"
+
 
     init {
-        App.storage.walk().forEach {
-            if(!it.isFile) return@forEach
-            filesToUpload.add(it)
+        App.storageDir.walk().forEach {
+            if(it.isFile) filesToUpload.add(it)
         }
         uploadFiles()
     }
@@ -32,6 +46,7 @@ class UploadManager(val context: Context) {
     private fun uploadFiles() {
         if(uploadJob!=null && uploadJob!!.isActive) return
         uploadJob = GlobalScope.launch(Dispatchers.IO) {
+            val TAG = TAG
             while (filesToUpload.isNotEmpty()) {
                 while (!Util.isOnline()) {
                     Log.d(TAG, "Waiting 30s for network")
@@ -49,8 +64,9 @@ class UploadManager(val context: Context) {
                         }
                         return@forEach
                     }
+
                     try {
-                        apiService.uploadFile(it, context)
+                        upload(it)
                         it.delete()
                         filesToUpload.remove(it)
                     } catch (e: Exception) {
@@ -60,4 +76,29 @@ class UploadManager(val context: Context) {
             }
         }
     }
+
+
+    private fun upload(file: File) {
+        val url = App.settings.url!!
+        val contentType = Files.probeContentType(file.toPath()).toMediaType()
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("file", file.name, file.asRequestBody(contentType))
+            .build()
+
+        val request: Request = Request.Builder()
+            .header("X-API-Key", Config.Network.API_KEY)
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        val response: Response = client.newCall(request).execute()
+        if (response.isSuccessful) {
+            totalTraffic += file.length()
+            totalUploads++
+        } else {
+            throw IOException("Unexpected code ${response.code.toString()}")
+        }
+    }
+
 }

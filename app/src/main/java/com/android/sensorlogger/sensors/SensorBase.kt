@@ -12,7 +12,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
-
 open class SensorBase(context: Context, filename_tag:String) : SensorEventListener, Logger(context, filename_tag)  {
     // Sensor Variables
     var sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -30,14 +29,9 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
 
     // Threshold Events
     var inThreshold = false
-    var thresholdDidEnd: Job? = null
+    var thresholdDidEndJob: Job? = null
     var thresholdStartedListeners = ArrayList<()->Unit>()
     var thresholdEndedListeners = ArrayList<()->Unit>()
-
-
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // Nothing to do yet.
-    }
 
     override fun onSensorChanged(event: SensorEvent?) {
         if(event == null) return
@@ -65,20 +59,22 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
         writeLine(line)
 
         // Handle Threshold Events
-        if(thresholdDidEnd == null || thresholdDidEnd!!.isCompleted) {
+        if(inThreshold) {
+            thresholdDidEndJob?.cancel()
+        } else {
             Log.i(sensor.name,"onThresholdStarted")
             inThreshold = true
             GlobalScope.launch {
                 for(l in thresholdStartedListeners) l.invoke()
             }
-        } else {
-            thresholdDidEnd?.cancel()
         }
-        thresholdDidEnd = GlobalScope.launch {
+        thresholdDidEndJob = GlobalScope.launch {
             delay(Config.Sensor.MOVEMENT_DELAY)
-            Log.i(sensor.name, "onThresholdEnded")
             inThreshold = false
-            for(l in thresholdEndedListeners) l.invoke()
+            Log.i(sensor.name, "onThresholdEnded")
+            GlobalScope.launch {
+                for (l in thresholdEndedListeners) l.invoke()
+            }
         }
     }
 
@@ -91,4 +87,6 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
         if(inThreshold) for(l in thresholdEndedListeners) l.invoke()
         closeLog()
     }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }

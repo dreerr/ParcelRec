@@ -230,18 +230,30 @@ class CameraRecorder(context: Context, args: CameraRecorderArgs) {
     }
 
     fun stop() {
-        try {
-            recorder.stop()
-        } catch (exc: Throwable) {
-            Log.e(TAG, "Error closing recorder", exc)
-        }
+        Log.d(TAG, "TRY camera.close()")
         try {
             camera.close()
         } catch (exc: Throwable) {
-            Log.e(TAG, "Error closing camera", exc)
+            Log.e(TAG, "Error camera.close()", exc)
         }
-        Log.d(TAG, "cameraThread.quitSafely")
+        Log.d(TAG, "TRY recorder.stop()")
+        try {
+            recorder.stop()
+        } catch (exc: Throwable) {
+            Log.e(TAG, "Error recorder.stop()", exc)
+        }
+        Log.d(TAG, "TRY session.close()")
+        try {
+            session.close()
+        } catch (exc: Throwable) {
+            Log.e(TAG, "Error session.close()", exc)
+        }
+
+        Log.d(TAG, "cameraThread.quitSafely()")
         cameraThread.quitSafely()
+        cameraThread.join()
+
+        Log.d(TAG, "recorder.release()")
         recorder.release()
         recorderSurface.release()
         App.uploadManager.add(outputFile)

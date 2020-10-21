@@ -3,9 +3,14 @@ package com.android.sensorlogger
 import android.Manifest.permission.*
 import android.app.Activity
 import android.app.ActivityManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
+import android.text.format.Formatter.formatShortFileSize
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -54,19 +59,17 @@ class MainActivity : AppCompatActivity() {
             actionOnService(SensorServiceActions.ROTATE)
         }
 
+        registerBroadcastReceiver()
+
         statsJob = GlobalScope.launch {
             while(isActive) {
                 runOnUiThread {
-                    files_in_queue.text = App.uploadManager.filesToUpload.size.toString()
-                    network_traffic.text = "${App.networkTraffic} MByte"
+                    files_in_queue.text = App.uploadManager.status
+                    network_traffic.text = formatShortFileSize(applicationContext, App.networkTraffic)
                 }
-                delay(1_000)
+                delay(500)
             }
         }
-    }
-
-    private fun updateStats() {
-
     }
 
     private fun startMeasurement(){
@@ -152,5 +155,44 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         statsJob?.cancel()
+    }
+
+    private var mPowerKeyReceiver: BroadcastReceiver? = null
+
+    private fun registerBroadcastReceiver() {
+        val theFilter = IntentFilter()
+        /** System Defined Broadcast  */
+        theFilter.addAction(Intent.ACTION_SCREEN_ON)
+        theFilter.addAction(Intent.ACTION_SCREEN_OFF)
+
+        mPowerKeyReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val strAction = intent!!.action
+                if (strAction == Intent.ACTION_SCREEN_ON) {
+                    // > Your playground~!
+                    if(isMeasurementRunning()) {
+                        actionOnService(SensorServiceActions.ROTATE)
+                    }
+                }
+            }
+        }
+
+        applicationContext.registerReceiver(mPowerKeyReceiver, theFilter)
+    }
+
+    private fun unregisterReceiver() {
+        val apiLevel = Build.VERSION.SDK_INT
+
+        if (apiLevel >= 7) {
+            try {
+                applicationContext.unregisterReceiver(mPowerKeyReceiver)
+            } catch (e: IllegalArgumentException) {
+                mPowerKeyReceiver = null
+            }
+
+        } else {
+            applicationContext.unregisterReceiver(mPowerKeyReceiver)
+            mPowerKeyReceiver = null
+        }
     }
 }

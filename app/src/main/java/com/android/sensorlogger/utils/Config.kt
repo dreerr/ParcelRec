@@ -19,4 +19,7 @@ object Config {
     object Wifi {
         var INTERVAL = 60_000L
     }
+    object Network {
+        var API_KEY = "dc5daf82-f7a0-11ea-adc1-0242ac120002"
+    }
 }

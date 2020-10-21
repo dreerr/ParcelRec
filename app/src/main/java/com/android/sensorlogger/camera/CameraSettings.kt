@@ -52,7 +52,7 @@ class CameraSettings(var context : Context) {
         )
         cameraIdSpinner.adapter = cameraIdSpinnerAdapter
 
-        cameraIdSpinner.setSelection(App.sessionManager.getCamId()!!.toInt())
+        cameraIdSpinner.setSelection(App.settings.camId!!.toInt())
 
         cameraIdSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
@@ -73,33 +73,33 @@ class CameraSettings(var context : Context) {
             }.toTypedArray()
         )
         cameraResolutionSpinner.adapter = cameraResolutionSpinnerAdapter
-        if (cameraIdSpinner.selectedItem == App.sessionManager.getCamId()){
+        if (cameraIdSpinner.selectedItem == App.settings.camId){
             cameraResolutionSpinner.setSelection(getSavedSizePosition(cameraResolutionSpinnerAdapter))
         }
     }
 
     private fun saveConfiguration(){
-        App.sessionManager.setCamId(cameraIdSpinner.selectedItem as String)
+        App.settings.camId = cameraIdSpinner.selectedItem as String
 
         val selectedSize = settingsHelper.getPossibleVideoSizes(cameraIdSpinner.selectedItem as String)
         val selectedSizeIdx = cameraResolutionSpinner.selectedItemPosition
 
-        App.sessionManager.setHeight(selectedSize!![selectedSizeIdx].height)
-        App.sessionManager.setWidth(selectedSize!![selectedSizeIdx].width)
+        App.settings.height = selectedSize!![selectedSizeIdx].height
+        App.settings.width = selectedSize!![selectedSizeIdx].width
 
-        App.sessionManager.setFps(cameraFpsEditText.text.toString().toInt())
+        App.settings.fps = cameraFpsEditText.text.toString().toInt()
     }
 
     private fun loadConfiguration(){
-        cameraIdSpinner.setSelection(App.sessionManager.getCamId()!!.toInt())
-        cameraFpsEditText.setText(App.sessionManager.getFps().toString())
+        cameraIdSpinner.setSelection(App.settings.camId!!.toInt())
+        cameraFpsEditText.setText(App.settings.fps.toString())
 
         //Resolution is loaded in buildCameraResolutionSpinner
     }
 
     private fun getSavedSizePosition(adapter : ArrayAdapter<String>) : Int {
-        val width = App.sessionManager.getWidth()
-        val height = App.sessionManager.getHeight()
+        val width = App.settings.width
+        val height = App.settings.height
         val item = "$width x $height"
 
         return adapter.getPosition(item)

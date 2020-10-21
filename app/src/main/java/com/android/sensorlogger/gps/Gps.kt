@@ -16,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-
 class Gps(context: Context) : LocationListener, Logger(context, "GPS")
 {
     private val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
@@ -29,14 +28,8 @@ class Gps(context: Context) : LocationListener, Logger(context, "GPS")
         }
     }
 
-    fun stop(){
-        locationManager.removeUpdates(this)
-        closeLog()
-    }
-
     override fun onLocationChanged(loc: Location) {
         GlobalScope.launch(Dispatchers.IO) {
-
             if(lastLoc?.latitude == loc.latitude &&
                 lastLoc?.longitude == loc.longitude) return@launch
 
@@ -44,7 +37,13 @@ class Gps(context: Context) : LocationListener, Logger(context, "GPS")
             Log.d(TAG, "Logging coordinates: ${loc.latitude}, ${loc.longitude}")
 
             writeLine(line)
+            lastLoc = loc
         }
+    }
+
+    fun stop(){
+        locationManager.removeUpdates(this)
+        closeLog()
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}

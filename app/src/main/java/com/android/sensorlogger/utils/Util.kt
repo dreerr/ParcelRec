@@ -18,7 +18,7 @@ object Util {
         return false
     }
     fun getFile(fileNameTag: String, extension: String): File {
-        return File(App.storage, "$fileNameTag$simpleTime.$extension")
+        return File(App.storageDir, "$fileNameTag$simpleTime.$extension")
 
     }
     @JvmStatic

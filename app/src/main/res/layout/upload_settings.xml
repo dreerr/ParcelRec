@@ -1,51 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="API URL (format example: https://palacz.my.to/)"
-        android:textSize="18sp"/>
+        android:text="API URL"
+        android:textSize="18sp" />
+
     <EditText
         android:id="@+id/api_url_edittext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autofillHints="24"/>
+        android:autofillHints="24" />
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="25dp"/>
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="API URL (format example: parcel/1)"
-        android:textSize="18sp"/>
-    <EditText
-        android:id="@+id/api_endpoint_edittext"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:autofillHints="24"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="25dp"/>
+        android:layout_height="25dp" />
 
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Upload rate (seconds)"
-        android:textSize="18sp"/>
+        android:textSize="18sp" />
+
     <EditText
         android:id="@+id/upload_rate_edittext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autofillHints="24"
-        android:inputType="number"/>
+        android:inputType="number" />
 
 </LinearLayout>
