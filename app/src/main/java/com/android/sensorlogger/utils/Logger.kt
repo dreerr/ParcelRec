@@ -1,8 +1,8 @@
-package com.android.sensorlogger.utils
+package com.android.parcelrec.utils
 
 import android.content.Context
 import android.util.Log
-import com.android.sensorlogger.App
+import com.android.parcelrec.App
 import java.io.BufferedWriter
 import java.io.File
 import java.nio.charset.Charset

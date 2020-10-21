@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "SensorLogger"
+rootProject.name = "ParcelRec"

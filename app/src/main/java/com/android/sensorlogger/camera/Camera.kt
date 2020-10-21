@@ -1,9 +1,9 @@
-package com.android.sensorlogger.camera
+package com.android.parcelrec.camera
 
 import android.content.Context
 import android.util.Log
-import com.android.sensorlogger.App
-import com.android.sensorlogger.utils.TAG
+import com.android.parcelrec.App
+import com.android.parcelrec.utils.TAG
 import kotlinx.coroutines.*
 
 class Camera(context: Context) {

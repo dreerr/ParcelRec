@@ -1,11 +1,11 @@
-package com.android.sensorlogger.networking
+package com.android.parcelrec.networking
 
 import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.Toast
-import com.android.sensorlogger.App
-import com.android.sensorlogger.R
+import com.android.parcelrec.App
+import com.android.parcelrec.R
 import kotlinx.android.synthetic.main.upload_settings.view.*
 
 class UploadSettings(var context : Context) {
@@ -17,7 +17,7 @@ class UploadSettings(var context : Context) {
 
     fun OpenUploadSettings(){
         val builder = AlertDialog.Builder(context)
-        builder.setTitle("com.android.sensorlogger.networking.Upload settings")
+        builder.setTitle("com.android.parcelrec.networking.Upload settings")
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
             saveConfiguration()

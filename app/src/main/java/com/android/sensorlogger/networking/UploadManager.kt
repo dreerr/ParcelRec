@@ -1,11 +1,11 @@
-package com.android.sensorlogger.networking
+package com.android.parcelrec.networking
 
 import android.content.Context
 import android.util.Log
-import com.android.sensorlogger.App
-import com.android.sensorlogger.utils.Config
-import com.android.sensorlogger.utils.TAG
-import com.android.sensorlogger.utils.Util
+import com.android.parcelrec.App
+import com.android.parcelrec.utils.Config
+import com.android.parcelrec.utils.TAG
+import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody

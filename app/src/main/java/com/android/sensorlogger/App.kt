@@ -1,16 +1,16 @@
-package com.android.sensorlogger
+package com.android.parcelrec
 
 import android.app.Application
 import android.util.Log
-import com.android.sensorlogger.camera.Camera
-import com.android.sensorlogger.gps.Gps
-import com.android.sensorlogger.utils.Settings
-import com.android.sensorlogger.networking.UploadManager
-import com.android.sensorlogger.sensors.Accelerometer
-import com.android.sensorlogger.sensors.Gyroscope
-import com.android.sensorlogger.sensors.Magnetometer
-import com.android.sensorlogger.utils.TAG
-import com.android.sensorlogger.wifi.Wifi
+import com.android.parcelrec.camera.Camera
+import com.android.parcelrec.gps.Gps
+import com.android.parcelrec.utils.Settings
+import com.android.parcelrec.networking.UploadManager
+import com.android.parcelrec.sensors.Accelerometer
+import com.android.parcelrec.sensors.Gyroscope
+import com.android.parcelrec.sensors.Magnetometer
+import com.android.parcelrec.utils.TAG
+import com.android.parcelrec.wifi.Wifi
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import java.io.File

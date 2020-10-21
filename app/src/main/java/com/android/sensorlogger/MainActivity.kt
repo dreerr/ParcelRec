@@ -1,4 +1,4 @@
-package com.android.sensorlogger
+package com.android.parcelrec
 
 import android.Manifest.permission.*
 import android.app.Activity
@@ -14,10 +14,10 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.android.sensorlogger.camera.CameraSettings
-import com.android.sensorlogger.networking.UploadSettings
-import com.android.sensorlogger.utils.PermissionHelper
-import com.android.sensorlogger.utils.SensorServiceActions
+import com.android.parcelrec.camera.CameraSettings
+import com.android.parcelrec.networking.UploadSettings
+import com.android.parcelrec.utils.PermissionHelper
+import com.android.parcelrec.utils.SensorServiceActions
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 

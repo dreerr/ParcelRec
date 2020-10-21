@@ -1,4 +1,4 @@
-package com.android.sensorlogger.wifi
+package com.android.parcelrec.wifi
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,10 +8,10 @@ import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.util.Log
 import android.widget.Toast
-import com.android.sensorlogger.App
-import com.android.sensorlogger.utils.Config
-import com.android.sensorlogger.utils.Logger
-import com.android.sensorlogger.utils.Util
+import com.android.parcelrec.App
+import com.android.parcelrec.utils.Config
+import com.android.parcelrec.utils.Logger
+import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
 
 class Wifi(context : Context) : Logger(context, "WIFI") {

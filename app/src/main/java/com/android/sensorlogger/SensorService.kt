@@ -1,4 +1,4 @@
-package com.android.sensorlogger
+package com.android.parcelrec
 
 import android.app.*
 import android.content.Context
@@ -7,8 +7,8 @@ import android.graphics.Color
 import android.os.*
 import android.util.Log
 import android.widget.Toast
-import com.android.sensorlogger.utils.SensorServiceActions
-import com.android.sensorlogger.utils.TAG
+import com.android.parcelrec.utils.SensorServiceActions
+import com.android.parcelrec.utils.TAG
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 

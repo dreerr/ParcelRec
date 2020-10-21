@@ -1,4 +1,4 @@
-package com.android.sensorlogger.camera
+package com.android.parcelrec.camera
 
 import android.text.InputFilter
 import android.text.Spanned

@@ -1,12 +1,12 @@
-package com.android.sensorlogger.sensors
+package com.android.parcelrec.sensors
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
-import com.android.sensorlogger.App
-import com.android.sensorlogger.utils.*
+import com.android.parcelrec.App
+import com.android.parcelrec.utils.*
 import kotlinx.coroutines.*
 import java.util.*
 

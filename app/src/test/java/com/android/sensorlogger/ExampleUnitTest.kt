@@ -1,4 +1,4 @@
-package com.android.sensorlogger
+package com.android.parcelrec
 
 import org.junit.Test
 

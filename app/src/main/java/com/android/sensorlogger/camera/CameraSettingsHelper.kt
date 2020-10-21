@@ -1,4 +1,4 @@
-package com.android.sensorlogger.camera
+package com.android.parcelrec.camera
 
 import android.content.Context
 import android.graphics.SurfaceTexture

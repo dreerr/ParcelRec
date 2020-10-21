@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.sensorlogger.camera
+package com.android.parcelrec.camera
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -30,9 +30,9 @@ import android.os.HandlerThread
 import android.util.Log
 import android.util.Range
 import android.view.Surface
-import com.android.sensorlogger.App
-import com.android.sensorlogger.utils.TAG
-import com.android.sensorlogger.utils.Util
+import com.android.parcelrec.App
+import com.android.parcelrec.utils.TAG
+import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
 import java.io.File
 import kotlin.RuntimeException

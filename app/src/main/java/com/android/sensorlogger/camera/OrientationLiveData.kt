@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.sensorlogger.camera
+package com.android.parcelrec.camera
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics

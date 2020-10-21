@@ -1,5 +1,5 @@
-package com.android.sensorlogger.utils
-import com.android.sensorlogger.App
+package com.android.parcelrec.utils
+import com.android.parcelrec.App
 import java.io.File
 import java.net.InetAddress
 import java.net.UnknownHostException

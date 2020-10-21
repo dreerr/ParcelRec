@@ -1,4 +1,4 @@
-package com.android.sensorlogger.utils
+package com.android.parcelrec.utils
 
 import android.content.Context
 

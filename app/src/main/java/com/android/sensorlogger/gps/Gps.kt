@@ -1,4 +1,4 @@
-package com.android.sensorlogger.gps
+package com.android.parcelrec.gps
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,11 +8,11 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
-import com.android.sensorlogger.App
-import com.android.sensorlogger.utils.Logger
-import com.android.sensorlogger.utils.PermissionHelper
-import com.android.sensorlogger.utils.TAG
-import com.android.sensorlogger.utils.Util
+import com.android.parcelrec.App
+import com.android.parcelrec.utils.Logger
+import com.android.parcelrec.utils.PermissionHelper
+import com.android.parcelrec.utils.TAG
+import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

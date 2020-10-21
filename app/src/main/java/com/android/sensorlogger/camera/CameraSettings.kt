@@ -1,4 +1,4 @@
-package com.android.sensorlogger.camera
+package com.android.parcelrec.camera
 
 import android.app.AlertDialog
 import android.content.Context
@@ -9,8 +9,8 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import com.android.sensorlogger.App
-import com.android.sensorlogger.R
+import com.android.parcelrec.App
+import com.android.parcelrec.R
 import kotlinx.android.synthetic.main.camera_settings.view.*
 
 

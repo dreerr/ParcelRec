@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.sensorlogger">
+    package="com.android.parcelrec">
 
     <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="true"/>
 
@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:name="com.android.sensorlogger.App"
+        android:name="com.android.parcelrec.App"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
@@ -40,7 +40,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.android.sensorlogger.provider"
+            android:authorities="com.android.parcelrec.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
