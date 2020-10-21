@@ -11,7 +11,7 @@ object Util {
     fun isOnline(): Boolean {
         try {
             var addresses = InetAddress.getAllByName("www.google.com")
-            return !addresses[0].hostAddress.equals("")
+            return addresses[0].hostAddress != ""
         } catch (e: UnknownHostException) {
             // Log error
         }
@@ -23,9 +23,7 @@ object Util {
     }
     @JvmStatic
     val simpleTime: String
-        get() {
-            return SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date())
-        }
+        get() = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date())
 }
 
 val Any.TAG: String

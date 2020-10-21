@@ -40,13 +40,13 @@ class Camera(context: Context) {
         if (recording) return
         Log.i(TAG, "Starting new recording")
         val args = CameraRecorderArgs(
-            App.settings.camId!!, //TODO: Better init!!
+            App.settings.camId!!,
             App.settings.fps,
             App.settings.width,
             App.settings.height
         )
         cameraRecorder = CameraRecorder(context, args)
-        rotateJob = CoroutineScope(Dispatchers.IO).launch {
+        rotateJob = App.scope.launch(Dispatchers.IO) {
             delay(App.settings.uploadRate * 1000L)
             Log.i("Camera", "Rotate recording")
             rotate()

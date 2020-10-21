@@ -61,11 +61,11 @@ class MainActivity : AppCompatActivity() {
 
         registerBroadcastReceiver()
 
-        statsJob = GlobalScope.launch {
+        statsJob = App.scope.launch(Dispatchers.IO) {
             while(isActive) {
                 runOnUiThread {
                     files_in_queue.text = App.uploadManager.status
-                    network_traffic.text = formatShortFileSize(applicationContext, App.networkTraffic)
+                    network_traffic.text = formatShortFileSize(applicationContext, App.uploadManager.totalTraffic)
                 }
                 delay(500)
             }

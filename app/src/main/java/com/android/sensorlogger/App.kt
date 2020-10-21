@@ -11,6 +11,8 @@ import com.android.sensorlogger.sensors.Gyroscope
 import com.android.sensorlogger.sensors.Magnetometer
 import com.android.sensorlogger.utils.TAG
 import com.android.sensorlogger.wifi.Wifi
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import java.io.File
 
 class App : Application() {
@@ -25,6 +27,7 @@ class App : Application() {
         var camera : Camera? = null
         var gps : Gps? = null
         var wifi : Wifi? = null
+        val scope = MainScope()
     }
 
     override fun onCreate() {
@@ -47,5 +50,10 @@ class App : Application() {
         gps = tryOrNull { Gps(applicationContext) }
         camera = tryOrNull { Camera(applicationContext) }
         wifi = tryOrNull { Wifi(applicationContext) }
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        scope.cancel()
     }
 }

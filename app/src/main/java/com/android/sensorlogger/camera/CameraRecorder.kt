@@ -132,7 +132,7 @@ class CameraRecorder(context: Context, args: CameraRecorderArgs) {
 
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun initializeCamera() = GlobalScope.launch(Dispatchers.Main) {
+    private fun initializeCamera() = App.scope.launch(Dispatchers.Main) {
 
         // Open the selected camera
         camera = openCamera(cameraManager, args.cameraId, cameraHandler)
@@ -220,7 +220,7 @@ class CameraRecorder(context: Context, args: CameraRecorderArgs) {
     }
 
     init {
-        GlobalScope.launch(Dispatchers.IO) {
+        App.scope.launch(Dispatchers.IO) {
             initializeCamera().join()
             // Used to rotate the output media to match device orientation
             relativeOrientation = OrientationLiveData(context, characteristics)

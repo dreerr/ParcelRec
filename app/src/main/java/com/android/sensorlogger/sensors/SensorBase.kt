@@ -5,11 +5,9 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
+import com.android.sensorlogger.App
 import com.android.sensorlogger.utils.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 
 open class SensorBase(context: Context, filename_tag:String) : SensorEventListener, Logger(context, filename_tag)  {
@@ -64,15 +62,15 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
         } else {
             Log.i(sensor.name,"onThresholdStarted")
             inThreshold = true
-            GlobalScope.launch {
+            App.scope.launch(Dispatchers.IO) {
                 for(l in thresholdStartedListeners) l.invoke()
             }
         }
-        thresholdDidEndJob = GlobalScope.launch {
+        thresholdDidEndJob = App.scope.launch(Dispatchers.IO) {
             delay(Config.Sensor.MOVEMENT_DELAY)
             inThreshold = false
             Log.i(sensor.name, "onThresholdEnded")
-            GlobalScope.launch {
+            App.scope.launch(Dispatchers.IO) {
                 for (l in thresholdEndedListeners) l.invoke()
             }
         }

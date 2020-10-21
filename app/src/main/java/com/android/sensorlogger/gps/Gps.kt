@@ -8,6 +8,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
+import com.android.sensorlogger.App
 import com.android.sensorlogger.utils.Logger
 import com.android.sensorlogger.utils.PermissionHelper
 import com.android.sensorlogger.utils.TAG
@@ -29,7 +30,7 @@ class Gps(context: Context) : LocationListener, Logger(context, "GPS")
     }
 
     override fun onLocationChanged(loc: Location) {
-        GlobalScope.launch(Dispatchers.IO) {
+        App.scope.launch(Dispatchers.IO) {
             if(lastLoc?.latitude == loc.latitude &&
                 lastLoc?.longitude == loc.longitude) return@launch
 

@@ -29,7 +29,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
         context.registerReceiver(wifiScanReceiver, intentFilter)
 
         App.accelerometer?.thresholdStartedListeners?.add {
-            scanJob = GlobalScope.launch(Dispatchers.IO) {
+            scanJob = App.scope.launch(Dispatchers.IO) {
                 while (true) {
                     val success = wifiManager.startScan()
                     if (!success) {
@@ -60,7 +60,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
         Toast.makeText(context, "SSIDs will not be logged.", Toast.LENGTH_LONG).show()
     }
 
-    private fun scanSuccess() = GlobalScope.launch(Dispatchers.IO) {
+    private fun scanSuccess() = App.scope.launch(Dispatchers.IO) {
         val results = wifiManager.scanResults
         Log.d("WIFI", "Wifi scan success.")
         results.forEach {

@@ -45,7 +45,7 @@ class UploadManager(val context: Context) {
 
     private fun uploadFiles() {
         if(uploadJob!=null && uploadJob!!.isActive) return
-        uploadJob = GlobalScope.launch(Dispatchers.IO) {
+        uploadJob = App.scope.launch(Dispatchers.IO) {
             val TAG = TAG
             while (filesToUpload.isNotEmpty()) {
                 while (!Util.isOnline()) {
