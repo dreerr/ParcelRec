@@ -21,6 +21,7 @@ open class Logger(open var context: Context, var fileNameTag : String) {
     }
 
     fun writeLine(line : String) {
+        if(logFile==null) return
         if(lastCreated == 0L) newLog()
         if((Date().time - lastCreated) > 1_000 * App.settings.uploadRate) {
             rotate()

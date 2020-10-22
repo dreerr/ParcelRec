@@ -58,7 +58,12 @@ class Camera(context: Context) {
          if(!recording) return
          Log.i(TAG, "Stopping recording")
          rotateJob?.cancel()
-         cameraRecorder?.stop()
+         try {
+             cameraRecorder?.stop()
+         } catch (e: Exception) {
+             Log.d(TAG, "Error stopping recording: ${e.message}")
+         }
+
          cameraRecorder = null
          recording = false
      }

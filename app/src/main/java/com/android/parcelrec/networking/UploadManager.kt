@@ -25,8 +25,7 @@ class UploadManager(val context: Context) {
     var totalTraffic = 0L
         private set
     val status: String
-        get() = "${filesToUpload.size.toString()} / ${totalUploads.toString()}"
-
+        get() = "Files: ${filesToUpload.size} / $totalUploads"
 
     init {
         App.storageDir.walk().forEach {
@@ -79,26 +78,33 @@ class UploadManager(val context: Context) {
 
 
     private fun upload(file: File) {
-        val url = App.settings.url!!
         val contentType = Files.probeContentType(file.toPath()).toMediaType()
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("file", file.name, file.asRequestBody(contentType))
             .build()
 
-        val request: Request = Request.Builder()
-            .header("X-API-Key", Config.Network.API_KEY)
-            .url(url)
-            .post(requestBody)
-            .build()
+        fun requestOnURL(url: String): Response = run {
+            val request: Request = Request.Builder()
+                .header("X-API-Key", Config.Network.API_KEY)
+                .url(url)
+                .post(requestBody)
+                .build()
 
-        val response: Response = client.newCall(request).execute()
-        if (response.isSuccessful) {
-            totalTraffic += file.length()
-            totalUploads++
-        } else {
-            throw IOException("Unexpected code ${response.code.toString()}")
+            val response: Response = client.newCall(request).execute()
+            response.close()
+            return response
         }
-    }
 
+        val response = requestOnURL(App.settings.url!!)
+        if (!response.isSuccessful) {
+            val backup = requestOnURL(App.settings.urlBackup!!)
+            if (!backup.isSuccessful) {
+                throw IOException("Unexpected codes: ${response.code.toString()} / ${backup.code.toString()}")
+            }
+        }
+        // If nothing did throw we are happy!
+        totalTraffic += file.length()
+        totalUploads++
+    }
 }

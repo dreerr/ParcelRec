@@ -29,6 +29,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
         context.registerReceiver(wifiScanReceiver, intentFilter)
 
         App.accelerometer?.thresholdStartedListeners?.add {
+            if(scanJob!=null && scanJob!!.isActive) return@add
             scanJob = App.scope.launch(Dispatchers.IO) {
                 while (true) {
                     val success = wifiManager.startScan()

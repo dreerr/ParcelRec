@@ -239,7 +239,7 @@ class CameraRecorder(context: Context, args: CameraRecorderArgs) {
         Log.d(TAG, "TRY recorder.stop()")
         try {
             recorder.stop()
-        } catch (exc: Throwable) {
+        } catch (exc: IllegalStateException) {
             Log.e(TAG, "Error recorder.stop()", exc)
         }
         Log.d(TAG, "TRY session.close()")

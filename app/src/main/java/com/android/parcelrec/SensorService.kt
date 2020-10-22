@@ -105,15 +105,15 @@ class SensorService : Service(){
     }
 
     private fun createNotification(): Notification {
-        val notificationChannelId = "SENSOR LOGGER CHANNEL"
+        val notificationChannelId = "PARCELREC CHANNEL"
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channel = NotificationChannel(
             notificationChannelId,
-            "Sensor Logger notifications channel",
+            "ParcelRec notifications channel",
             NotificationManager.IMPORTANCE_HIGH
         ).let {
-            it.description = "Sensor Logger channel"
+            it.description = "ParcelRec Channel"
             it.enableLights(true)
             it.lightColor = Color.RED
             it
@@ -128,11 +128,11 @@ class SensorService : Service(){
         val builder =  Notification.Builder(this, notificationChannelId )
 
         return builder
-            .setContentTitle("Sensor Logger")
+            .setContentTitle("ParcelRec")
             .setContentText("Measurement is running in the background.")
             .setSmallIcon(R.drawable.icon)
             .setContentIntent(pendingIntent)
-            .setTicker("Sensor Logger")
+            .setTicker("ParcelRec")
             .build()
     }
 }

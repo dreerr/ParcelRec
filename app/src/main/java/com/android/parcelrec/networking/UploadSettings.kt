@@ -13,6 +13,7 @@ class UploadSettings(var context : Context) {
     /**View items */
     val view = LayoutInflater.from(context).inflate(R.layout.upload_settings, null)
     val api_url_edittext = view.api_url_edittext
+    val api_url_backup_edittext = view.api_url_backup_edittext
     val upload_rate_edittext = view.upload_rate_edittext
 
     fun OpenUploadSettings(){
@@ -33,11 +34,13 @@ class UploadSettings(var context : Context) {
 
     private fun saveConfiguration(){
         App.settings.url = api_url_edittext.text.toString()
+        App.settings.urlBackup = api_url_backup_edittext.text.toString()
         App.settings.uploadRate = upload_rate_edittext.text.toString().toInt()
     }
 
     private fun loadConfiguration(){
         api_url_edittext.setText(App.settings.url)
+        api_url_backup_edittext.setText(App.settings.urlBackup)
         upload_rate_edittext.setText(App.settings.uploadRate.toString())
     }
 }
