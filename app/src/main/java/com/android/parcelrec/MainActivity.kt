@@ -1,7 +1,6 @@
 package com.android.parcelrec
 
 import android.Manifest.permission.*
-import android.app.Activity
 import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -10,7 +9,6 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.text.format.Formatter.formatShortFileSize
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +21,7 @@ import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 
-    var statsJob : Job? = null
+    var statusJob : Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,13 +59,19 @@ class MainActivity : AppCompatActivity() {
 
         registerBroadcastReceiver()
 
-        statsJob = App.scope.launch(Dispatchers.IO) {
+        statusJob = App.scope.launch(Dispatchers.IO) {
             while(isActive) {
                 runOnUiThread {
-                    files_in_queue.text = App.uploadManager.status
+                    camera_status.text = App.camera?.status
+                    accelerometer_status.text = App.accelerometer?.status
+                    gyroscope_status.text = App.gyroscope?.status
+                    magnetometer_status.text = App.magnetometer?.status
+                    gps_status.text = App.gps?.status
+                    wifi_status.text = App.wifi?.status
+                    uploads_status.text = App.uploadManager.status
                     network_traffic.text = formatShortFileSize(applicationContext, App.uploadManager.totalTraffic)
                 }
-                delay(500)
+                delay(250)
             }
         }
     }
@@ -154,7 +158,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        statsJob?.cancel()
+        unregisterReceiver()
+        statusJob?.cancel()
     }
 
     private var mPowerKeyReceiver: BroadcastReceiver? = null

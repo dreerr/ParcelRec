@@ -11,6 +11,8 @@ class Camera(context: Context) {
     private var recording = false
     private var cameraRecorder: CameraRecorder? = null
     private var rotateJob: Job? = null
+    private var totalRecordings = 0L
+    val status get() = "$totalRecordings"
 
     fun run() {
         App.accelerometer?.thresholdStartedListeners?.add {
@@ -52,6 +54,7 @@ class Camera(context: Context) {
             rotate()
         }
         recording = true
+        totalRecordings++
     }
 
      private fun stopRecording() {

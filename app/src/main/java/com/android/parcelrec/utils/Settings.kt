@@ -10,7 +10,7 @@ const val KEY_CAM_ID = "camId"
 
 /**Network settings*/
 const val KEY_API_URL = "url"
-const val KEY_API_BACKUP_URL = "url"
+const val KEY_API_BACKUP_URL = "urlBackup"
 const val KEY_RATE = "uploadRate"
 
 class Settings(context: Context) {

@@ -76,7 +76,6 @@ class UploadManager(val context: Context) {
         }
     }
 
-
     private fun upload(file: File) {
         val contentType = Files.probeContentType(file.toPath()).toMediaType()
         val requestBody = MultipartBody.Builder()
@@ -96,12 +95,15 @@ class UploadManager(val context: Context) {
             return response
         }
 
-        val response = requestOnURL(App.settings.url!!)
-        if (!response.isSuccessful) {
-            val backup = requestOnURL(App.settings.urlBackup!!)
-            if (!backup.isSuccessful) {
-                throw IOException("Unexpected codes: ${response.code.toString()} / ${backup.code.toString()}")
+        var response: Response? = null
+
+        runCatching { response = requestOnURL(App.settings.url!!) }
+            .onFailure {
+                Log.e(TAG, "API not available, trying backup: ${it.localizedMessage}")
+                response = requestOnURL(App.settings.urlBackup!!)
             }
+        if (!response!!.isSuccessful) {
+            throw IOException("Unexpected HTTP code: ${response!!.code}")
         }
         // If nothing did throw we are happy!
         totalTraffic += file.length()
