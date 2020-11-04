@@ -32,7 +32,7 @@ class SensorService : Service(){
                 SensorServiceActions.START.name -> startService()
                 SensorServiceActions.STOP.name -> stopService()
                 SensorServiceActions.ROTATE.name -> rotate()
-                else -> Log.d(TAG, "This should never happen. No action in the received intent")
+                else -> Log.e(TAG, "This should never happen. No action in the received intent")
             }
         } else {
             Log.d(TAG,"with a null intent. It has been probably restarted by the system." )
@@ -96,6 +96,7 @@ class SensorService : Service(){
     }
 
     private fun rotate() {
+        Log.d(TAG, "Rotating all Sensors")
         App.wifi?.rotate()
         App.accelerometer?.rotate()
         App.gyroscope?.rotate()

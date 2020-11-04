@@ -38,7 +38,7 @@ open class Logger(open var context: Context, var fileNameTag : String) {
         newLog()
     }
 
-    fun closeLog(){
+    fun closeLog() {
         if(logFile==null) return
         bufferedWriter?.close()
         Log.d(TAG, "Closed file ${logFile?.name}")
@@ -47,5 +47,10 @@ open class Logger(open var context: Context, var fileNameTag : String) {
         } else {
             logFile?.delete()
         }
+    }
+
+    fun stopLog() {
+        closeLog()
+        lastCreated = 0L
     }
 }

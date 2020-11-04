@@ -44,7 +44,7 @@ class Gps(context: Context) : LocationListener, Logger(context, "GPS")
 
     fun stop(){
         locationManager.removeUpdates(this)
-        closeLog()
+        stopLog()
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}

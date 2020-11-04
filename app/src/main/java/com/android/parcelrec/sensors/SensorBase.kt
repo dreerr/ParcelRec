@@ -83,7 +83,7 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
     fun stop(){
         sensorManager.unregisterListener(this)
         if(inThreshold) for(l in thresholdEndedListeners) l.invoke()
-        closeLog()
+        stopLog()
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}

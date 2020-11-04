@@ -176,9 +176,8 @@ class MainActivity : AppCompatActivity() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val strAction = intent!!.action
                 if (strAction == Intent.ACTION_SCREEN_ON) {
-                    // > Your playground~!
                     if(isMeasurementRunning()) {
-                        actionOnService(SensorServiceActions.ROTATE)
+                        // actionOnService(SensorServiceActions.ROTATE)
                     }
                 }
             }

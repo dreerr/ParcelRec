@@ -94,7 +94,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
     fun stop(){
         scanJob?.cancel()
         context.unregisterReceiver(wifiScanReceiver)
-        closeLog()
+        stopLog()
     }
 
 }

@@ -14,23 +14,28 @@ class Camera(context: Context) {
     private var rotateJob: Job? = null
     private var intervalJob: Job? = null
     private var totalRecordings = 0L
-    val status get() = "$totalRecordings ${(if(!Util.enoughFreeSpace()) "(not recording)" else "")}"
+    val status: String get() {
+        return "$totalRecordings " +
+                (if(recording) "🔴" else "") +
+                (if(!Util.enoughFreeSpace()) "⚠️" else "")
+    }
 
     fun run() {
         App.accelerometer?.thresholdStartedListeners?.add {
+            intervalJob?.cancel()
             startRecording()
         }
         App.accelerometer?.thresholdEndedListeners?.add {
             stopRecording()
-        }
-        intervalJob = App.scope.launch(Dispatchers.IO) {
-            while (isActive) {
-                delay(60_000L * App.settings.recInterval)
-                Log.d("Camera", "Recording Interval reached!")
-                startRecording()
-                delay(1000L * App.settings.recDuration)
-                Log.d("Camera", "Recording Duration reached!")
-                stopRecording()
+            intervalJob = App.scope.launch(Dispatchers.IO) {
+                while (isActive) {
+                    delay(60_000L * App.settings.recInterval)
+                    Log.d("Camera", "Recording Interval reached!")
+                    startRecording()
+                    delay(1000L * App.settings.recDuration)
+                    Log.d("Camera", "Recording Duration reached!")
+                    stopRecording()
+                }
             }
         }
     }
@@ -45,6 +50,8 @@ class Camera(context: Context) {
     }
 
     fun stop(){
+        intervalJob?.cancel()
+        rotateJob?.cancel()
         if (recording){
             stopRecording()
         }
@@ -52,19 +59,25 @@ class Camera(context: Context) {
 
     private fun startRecording() {
         if (recording || !Util.enoughFreeSpace()) return
+        recording = true
         Log.i(TAG, "Starting new recording")
-        cameraRecorder = CameraRecorder(context)
+        try {
+            cameraRecorder = CameraRecorder(context)
+        } catch (e: Exception) {
+            recording = false
+            Log.d(TAG, "Error starting recording: ${e.message}")
+        }
         rotateJob = App.scope.launch(Dispatchers.IO) {
             delay(60_000L * App.settings.uploadRate)
             Log.i("Camera", "Rotate recording")
             rotate()
         }
-        recording = true
         totalRecordings++
     }
 
      private fun stopRecording() {
          if(!recording) return
+         recording = false
          Log.i(TAG, "Stopping recording")
          rotateJob?.cancel()
          try {
@@ -73,6 +86,5 @@ class Camera(context: Context) {
              Log.d(TAG, "Error stopping recording: ${e.message}")
          }
          cameraRecorder = null
-         recording = false
      }
 }
