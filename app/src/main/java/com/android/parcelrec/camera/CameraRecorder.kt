@@ -40,9 +40,13 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-class CameraRecorder(context: Context, args: CameraRecorderArgs) {
+class CameraRecorder(context: Context) {
 
-    private val args = args
+    private val args = CameraRecorderArgs(
+        App.settings.camId!!,
+        30,
+        App.settings.width,
+        App.settings.height)
 
     /** Detects, characterizes, and connects to a CameraDevice (used for all camera operations) */
     private val cameraManager: CameraManager by lazy {

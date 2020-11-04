@@ -1,10 +1,13 @@
 package com.android.parcelrec.utils
+import android.os.StatFs
+import android.util.Log
 import com.android.parcelrec.App
 import java.io.File
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 object Util {
 
@@ -20,6 +23,16 @@ object Util {
     fun getFile(fileNameTag: String, extension: String): File {
         return File(App.storageDir, "$fileNameTag$simpleTime.$extension")
 
+    }
+    val bytesAvailable: Long
+    get() {
+        val stat = StatFs(App.storageDir.path)
+        return stat.blockSizeLong * stat.availableBlocksLong
+    }
+
+    fun enoughFreeSpace() : Boolean {
+        val megAvailable = bytesAvailable / (1024 * 1024)
+        return megAvailable > 1024 // over 1GB
     }
     @JvmStatic
     val simpleTime: String

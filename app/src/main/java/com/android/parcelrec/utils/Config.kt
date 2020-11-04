@@ -2,9 +2,9 @@ package com.android.parcelrec.utils
 
 object Config {
     object Sensor {
-        var ACC_X_THRESHOLD = 0.2
-        var ACC_Y_THRESHOLD = 0.2
-        var ACC_Z_THRESHOLD = 0.2
+        var ACC_X_THRESHOLD = 0.15
+        var ACC_Y_THRESHOLD = 0.15
+        var ACC_Z_THRESHOLD = 0.15
 
         var MOVEMENT_DELAY = 30_000L
 

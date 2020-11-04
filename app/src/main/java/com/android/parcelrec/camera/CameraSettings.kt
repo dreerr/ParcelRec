@@ -2,7 +2,6 @@ package com.android.parcelrec.camera
 
 import android.app.AlertDialog
 import android.content.Context
-import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
@@ -16,22 +15,21 @@ import kotlinx.android.synthetic.main.camera_settings.view.*
 
 class CameraSettings(var context : Context) {
     /**View items */
-    val view = LayoutInflater.from(context).inflate(R.layout.camera_settings, null)
-    val cameraIdSpinner = view.camera_id_spinner
-    val cameraResolutionSpinner = view.camera_resolution_spinner
-    val cameraFpsEditText = view.camera_fps_edittext
+    private val view = LayoutInflater.from(context).inflate(R.layout.camera_settings, null)
+    private val cameraId = view.camera_id
+    private val resolution = view.resolution
+    private val recDuration = view.rec_duration
+    private val recInterval = view.rec_interval
 
-    val settingsHelper = CameraSettingsHelper(context)
-    val cameraIdList = settingsHelper.getCameraIDs()
+    private val settingsHelper = CameraSettingsHelper(context)
+    private val cameraIdList = settingsHelper.getCameraIDs()
 
-    fun OpenCameraSettings(){
-        cameraFpsEditText.setFilters(arrayOf<InputFilter>(InputFilterMinMax("1", "30")))
+    fun openCameraSettings(){
 
-        buildCameraIdSpinner()
-        //buildCameraResolutionSpinner("0")
+        buildCameraId()
 
         val builder = AlertDialog.Builder(context)
-        builder.setTitle("Camera settings")
+        builder.setTitle("Camera Settings")
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
             saveConfiguration()
@@ -45,18 +43,18 @@ class CameraSettings(var context : Context) {
         loadConfiguration()
     }
 
-    fun buildCameraIdSpinner(){
+    private fun buildCameraId(){
         val cameraIdSpinnerAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
             context, android.R.layout.simple_spinner_item,
             cameraIdList
         )
-        cameraIdSpinner.adapter = cameraIdSpinnerAdapter
+        cameraId.adapter = cameraIdSpinnerAdapter
 
-        cameraIdSpinner.setSelection(App.settings.camId!!.toInt())
+        cameraId.setSelection(App.settings.camId!!.toInt())
 
-        cameraIdSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+        cameraId.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
-                buildCameraResolutionSpinner(cameraIdList[position])
+                buildResolutions(cameraIdList[position])
             }
 
             override fun onNothingSelected(parentView: AdapterView<*>?) {
@@ -65,34 +63,36 @@ class CameraSettings(var context : Context) {
         }
     }
 
-    fun buildCameraResolutionSpinner(cameraid : String){
+    fun buildResolutions(id : String){
         val cameraResolutionSpinnerAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
             context, android.R.layout.simple_spinner_item,
-            settingsHelper.getPossibleVideoSizes(cameraid)!!.map {
+            settingsHelper.getPossibleVideoSizes(id)!!.map {
                 "${it.width} x ${it.height}"
             }.toTypedArray()
         )
-        cameraResolutionSpinner.adapter = cameraResolutionSpinnerAdapter
-        if (cameraIdSpinner.selectedItem == App.settings.camId){
-            cameraResolutionSpinner.setSelection(getSavedSizePosition(cameraResolutionSpinnerAdapter))
+        resolution.adapter = cameraResolutionSpinnerAdapter
+        if (this.cameraId.selectedItem == App.settings.camId){
+            resolution.setSelection(getSavedSizePosition(cameraResolutionSpinnerAdapter))
         }
     }
 
     private fun saveConfiguration(){
-        App.settings.camId = cameraIdSpinner.selectedItem as String
+        App.settings.camId = cameraId.selectedItem as String
 
-        val selectedSize = settingsHelper.getPossibleVideoSizes(cameraIdSpinner.selectedItem as String)
-        val selectedSizeIdx = cameraResolutionSpinner.selectedItemPosition
+        val selectedSize = settingsHelper.getPossibleVideoSizes(cameraId.selectedItem as String)
+        val selectedSizeIdx = resolution.selectedItemPosition
 
         App.settings.height = selectedSize!![selectedSizeIdx].height
         App.settings.width = selectedSize!![selectedSizeIdx].width
 
-        App.settings.fps = cameraFpsEditText.text.toString().toInt()
+        App.settings.recDuration = recDuration.text.toString().toInt()
+        App.settings.recInterval = recInterval.text.toString().toInt()
     }
 
     private fun loadConfiguration(){
-        cameraIdSpinner.setSelection(App.settings.camId!!.toInt())
-        cameraFpsEditText.setText(App.settings.fps.toString())
+        cameraId.setSelection(App.settings.camId!!.toInt())
+        recDuration.setText(App.settings.recDuration.toString())
+        recInterval.setText(App.settings.recInterval.toString())
 
         //Resolution is loaded in buildCameraResolutionSpinner
     }

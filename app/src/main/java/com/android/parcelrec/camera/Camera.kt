@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.android.parcelrec.App
 import com.android.parcelrec.utils.TAG
+import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
 
 class Camera(context: Context) {
@@ -11,8 +12,9 @@ class Camera(context: Context) {
     private var recording = false
     private var cameraRecorder: CameraRecorder? = null
     private var rotateJob: Job? = null
+    private var intervalJob: Job? = null
     private var totalRecordings = 0L
-    val status get() = "$totalRecordings"
+    val status get() = "$totalRecordings ${(if(!Util.enoughFreeSpace()) "(not recording)" else "")}"
 
     fun run() {
         App.accelerometer?.thresholdStartedListeners?.add {
@@ -20,6 +22,16 @@ class Camera(context: Context) {
         }
         App.accelerometer?.thresholdEndedListeners?.add {
             stopRecording()
+        }
+        intervalJob = App.scope.launch(Dispatchers.IO) {
+            while (isActive) {
+                delay(60_000L * App.settings.recInterval)
+                Log.d("Camera", "Recording Interval reached!")
+                startRecording()
+                delay(1000L * App.settings.recDuration)
+                Log.d("Camera", "Recording Duration reached!")
+                stopRecording()
+            }
         }
     }
 
@@ -39,17 +51,11 @@ class Camera(context: Context) {
     }
 
     private fun startRecording() {
-        if (recording) return
+        if (recording || !Util.enoughFreeSpace()) return
         Log.i(TAG, "Starting new recording")
-        val args = CameraRecorderArgs(
-            App.settings.camId!!,
-            App.settings.fps,
-            App.settings.width,
-            App.settings.height
-        )
-        cameraRecorder = CameraRecorder(context, args)
+        cameraRecorder = CameraRecorder(context)
         rotateJob = App.scope.launch(Dispatchers.IO) {
-            delay(App.settings.uploadRate * 1000L)
+            delay(60_000L * App.settings.uploadRate)
             Log.i("Camera", "Rotate recording")
             rotate()
         }
@@ -66,7 +72,6 @@ class Camera(context: Context) {
          } catch (e: Exception) {
              Log.d(TAG, "Error stopping recording: ${e.message}")
          }
-
          cameraRecorder = null
          recording = false
      }

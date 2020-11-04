@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
@@ -8,41 +8,64 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Camera ID"
-        android:textSize="18sp"/>
+        android:textSize="18sp" />
+
     <Spinner
-        android:id="@+id/camera_id_spinner"
+        android:id="@+id/camera_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
     <View
         android:layout_width="match_parent"
-        android:layout_height="25dp"/>
+        android:layout_height="25dp" />
 
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Resolution"
-        android:textSize="18sp"/>
+        android:textSize="18sp" />
+
     <Spinner
-        android:id="@+id/camera_resolution_spinner"
+        android:id="@+id/resolution"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
     <View
         android:layout_width="match_parent"
-        android:layout_height="25dp"/>
+        android:layout_height="25dp" />
 
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="FPS (max 30)"
-        android:textSize="18sp"/>
+        android:text="Minimum Recording Duration (Seconds)"
+        android:textSize="18sp" />
+
     <EditText
-        android:id="@+id/camera_fps_edittext"
+        android:id="@+id/rec_duration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autofillHints="24"
-        android:inputType="number"/>
+        android:inputType="number" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="25dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Recording Interval (Minutes)"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/rec_interval"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="24"
+        android:inputType="number" />
 
 
 </LinearLayout>

@@ -6,7 +6,10 @@ import com.android.parcelrec.App
 import com.android.parcelrec.utils.Config
 import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -16,6 +19,8 @@ import okhttp3.Response
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
+import java.util.concurrent.TimeUnit
+
 
 class UploadManager(val context: Context) {
     private var filesToUpload = mutableListOf<File>()
@@ -25,7 +30,7 @@ class UploadManager(val context: Context) {
     var totalTraffic = 0L
         private set
     val status: String
-        get() = "Files: ${filesToUpload.size} / $totalUploads"
+        get() = "${filesToUpload.size} / $totalUploads"
 
     init {
         App.storageDir.walk().forEach {
@@ -101,6 +106,7 @@ class UploadManager(val context: Context) {
             .onFailure {
                 Log.e(TAG, "API not available, trying backup: ${it.localizedMessage}")
                 response = requestOnURL(App.settings.urlBackup!!)
+                Log.e(TAG, "Backup API ${App.settings.urlBackup} successful!")
             }
         if (!response!!.isSuccessful) {
             throw IOException("Unexpected HTTP code: ${response!!.code}")

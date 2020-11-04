@@ -1,6 +1,7 @@
 package com.android.parcelrec
 
 import android.Manifest.permission.*
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -16,6 +17,7 @@ import com.android.parcelrec.camera.CameraSettings
 import com.android.parcelrec.networking.UploadSettings
 import com.android.parcelrec.utils.PermissionHelper
 import com.android.parcelrec.utils.SensorServiceActions
+import com.android.parcelrec.utils.Util
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 
@@ -23,18 +25,17 @@ class MainActivity : AppCompatActivity() {
 
     var statusJob : Job? = null
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         if (isMeasurementRunning()) {
-            animationView.visibility = View.VISIBLE
             uploadButton.visibility = View.VISIBLE
             cameraSettingButton.visibility = View.GONE
             uploadSettingButton.visibility = View.GONE
             startStopButton.text = "STOP"
         } else {
-            animationView.visibility = View.GONE
             uploadButton.visibility = View.GONE
             cameraSettingButton.visibility = View.VISIBLE
             uploadSettingButton.visibility = View.VISIBLE
@@ -45,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         startStopButton.setOnClickListener {if (!isMeasurementRunning()) startMeasurement() else stopMeasurement()}
         cameraSettingButton.setOnClickListener {
             val cameraSettings = CameraSettings(this)
-            cameraSettings.OpenCameraSettings()
+            cameraSettings.openCameraSettings()
         }
 
         uploadSettingButton.setOnClickListener {
@@ -62,14 +63,17 @@ class MainActivity : AppCompatActivity() {
         statusJob = App.scope.launch(Dispatchers.IO) {
             while(isActive) {
                 runOnUiThread {
-                    camera_status.text = App.camera?.status
-                    accelerometer_status.text = App.accelerometer?.status
-                    gyroscope_status.text = App.gyroscope?.status
-                    magnetometer_status.text = App.magnetometer?.status
-                    gps_status.text = App.gps?.status
-                    wifi_status.text = App.wifi?.status
-                    uploads_status.text = App.uploadManager.status
-                    network_traffic.text = formatShortFileSize(applicationContext, App.uploadManager.totalTraffic)
+                    status.text = """
+                        Camera: ${App.camera?.status}
+                        Accelerometer: ${App.accelerometer?.status}
+                        Gyroscope: ${(if (App.gyroscope != null) App.gyroscope!!.status else "n/a")}
+                        Magnetometer: ${(if (App.magnetometer != null) App.magnetometer!!.status else "n/a")}
+                        GPS: ${App.gps?.status}
+                        WiFi: ${App.wifi?.status}
+                        Uploads: ${App.uploadManager.status}
+                        Traffic: ${formatShortFileSize(applicationContext, App.uploadManager.totalTraffic)}
+                        Free Space: ${formatShortFileSize(applicationContext, Util.bytesAvailable)}
+                    """.trimIndent()
                 }
                 delay(250)
             }
@@ -78,7 +82,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun startMeasurement(){
         startStopButton.text = "STOP"
-        animationView.visibility = View.VISIBLE
         uploadButton.visibility = View.VISIBLE
         cameraSettingButton.visibility = View.GONE
         uploadSettingButton.visibility = View.GONE
@@ -88,7 +91,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun stopMeasurement(){
         startStopButton.text = "START"
-        animationView.visibility = View.GONE
         uploadButton.visibility = View.GONE
         cameraSettingButton.visibility = View.VISIBLE
         uploadSettingButton.visibility = View.VISIBLE
