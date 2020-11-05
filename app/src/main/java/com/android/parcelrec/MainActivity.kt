@@ -70,6 +70,7 @@ class MainActivity : AppCompatActivity() {
                         Magnetometer: ${(if (App.magnetometer != null) App.magnetometer!!.status else "n/a")}
                         GPS: ${App.gps?.status}
                         WiFi: ${App.wifi?.status}
+                        
                         Uploads: ${App.uploadManager.status}
                         Traffic: ${formatShortFileSize(applicationContext, App.uploadManager.totalTraffic)}
                         Free Space: ${formatShortFileSize(applicationContext, Util.bytesAvailable)}
