@@ -10,8 +10,7 @@ class Magnetometer(context: Context, fileName: String) : SensorEventListener, Se
     init {
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
-        thresholdX = Config.Sensor.MAG_X_THRESHOLD
-        thresholdY = Config.Sensor.MAG_Y_THRESHOLD
-        thresholdZ = Config.Sensor.MAG_Z_THRESHOLD
+        threshold = Config.Sensor.MAG_THRESHOLD
+        numPrevValues = 5
     }
 }

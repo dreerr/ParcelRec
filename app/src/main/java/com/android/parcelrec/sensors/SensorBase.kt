@@ -9,6 +9,9 @@ import com.android.parcelrec.App
 import com.android.parcelrec.utils.*
 import kotlinx.coroutines.*
 import java.util.*
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 open class SensorBase(context: Context, filename_tag:String) : SensorEventListener, Logger(context, filename_tag)  {
     // Sensor Variables
@@ -16,14 +19,11 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
     lateinit var sensor : Sensor
 
     // Previous values
-    var prevX : Float? = null
-    var prevY : Float? = null
-    var prevZ : Float? = null
+    var prevValues = ArrayList<FloatArray>()
+    var numPrevValues = 10
 
     // Threshold Levels
-    var thresholdX : Double = 0.0
-    var thresholdY : Double = 0.0
-    var thresholdZ : Double = 0.0
+    var threshold : Double = 0.0
 
     // Threshold Events
     var inThreshold = false
@@ -33,20 +33,30 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
 
     override fun onSensorChanged(event: SensorEvent?) {
         if(event == null) return
-        val x = event.values[0]
-        val y = event.values[1]
-        val z = event.values[2]
 
-        val thresholdExceeded = prevX == null ||
-                    kotlin.math.abs(prevX!! - x) > thresholdX ||
-                    kotlin.math.abs(prevY!! - y) > thresholdY ||
-                    kotlin.math.abs(prevZ!! - z) > thresholdZ
+        // Check Threshold
+        var thresholdExceeded = (prevValues.count() == 0)
+        event.values.withIndex().forEach { axis ->
+            prevValues.forEach { prevValue ->
+                val prevAxis = prevValue[axis.index]
+                val diff = abs(prevAxis - axis.value)
+                if (diff > threshold) {
+                    thresholdExceeded = true
+                }
+            }
+        }
 
-        prevX = x
-        prevY = y
-        prevZ = z
+        // Keep track of previous values
+        prevValues.add(event.values.copyOf())
+        if(prevValues.count() > numPrevValues) prevValues.removeAt(0)
 
         if(thresholdExceeded) onThresholdExceeded(event)
+
+        sensorManager.unregisterListener(this)
+        App.scope.launch(Dispatchers.IO) {
+            delay(100)
+            registerListener()
+        }
     }
 
     open fun onThresholdExceeded(event: SensorEvent?) {
@@ -71,18 +81,28 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
             inThreshold = false
             Log.i(sensor.name, "onThresholdEnded")
             App.scope.launch(Dispatchers.IO) {
-                for (l in thresholdEndedListeners) l.invoke()
+                thresholdEndedListeners.forEach { it.invoke() }
             }
         }
     }
 
     fun run(){
+        registerListener()
+    }
+
+    private fun registerListener() {
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
     fun stop(){
         sensorManager.unregisterListener(this)
-        if(inThreshold) for(l in thresholdEndedListeners) l.invoke()
+        if(inThreshold) {
+            for(l in thresholdEndedListeners) l.invoke()
+            inThreshold = false
+        }
+        thresholdDidEndJob?.cancel()
+        thresholdStartedListeners.clear()
+        thresholdEndedListeners.clear()
         stopLog()
     }
 

@@ -19,8 +19,7 @@ class Accelerometer(context: Context, fileName: String) : SensorEventListener, S
         }
 
         // Set Threshold from Settings
-        thresholdX = Config.Sensor.ACC_X_THRESHOLD
-        thresholdY = Config.Sensor.ACC_Y_THRESHOLD
-        thresholdZ = Config.Sensor.ACC_Z_THRESHOLD
+        threshold = Config.Sensor.ACC_THRESHOLD
+        numPrevValues = 2
     }
 }
