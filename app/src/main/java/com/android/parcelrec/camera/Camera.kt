@@ -27,6 +27,7 @@ class Camera(context: Context) {
         }
         App.accelerometer?.thresholdEndedListeners?.add {
             stopRecording()
+            if(intervalJob != null && intervalJob!!.isActive) return@add // TODO: Do we need that?
             intervalJob = App.scope.launch(Dispatchers.IO) {
                 while (isActive) {
                     delay(60_000L * App.settings.recInterval)
