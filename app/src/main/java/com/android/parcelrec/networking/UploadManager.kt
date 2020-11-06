@@ -32,6 +32,8 @@ class UploadManager(val context: Context) {
     val status: String
         get() = "${filesToUpload.size} / $totalUploads"
 
+    var url = App.settings.url!!
+
     init {
         App.storageDir.walk().forEach {
             if(it.isFile) filesToUpload.add(it)
@@ -102,11 +104,12 @@ class UploadManager(val context: Context) {
 
         var response: Response? = null
 
-        runCatching { response = requestOnURL(App.settings.url!!) }
+        runCatching { response = requestOnURL(url) }
             .onFailure {
                 Log.e(TAG, "API not available, trying backup: ${it.localizedMessage}")
                 response = requestOnURL(App.settings.urlBackup!!)
-                Log.e(TAG, "Backup API ${App.settings.urlBackup} successful!")
+                Log.i(TAG, "Backup API ${App.settings.urlBackup} successful!")
+                url = App.settings.urlBackup!!
             }
         if (!response!!.isSuccessful) {
             throw IOException("Unexpected HTTP code: ${response!!.code}")
