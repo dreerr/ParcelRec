@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.android.parcelrec.App
 import com.android.parcelrec.utils.Config
 import com.android.parcelrec.utils.Logger
+import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
 
@@ -32,9 +33,10 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
             if(scanJob!=null && scanJob!!.isActive) return@add
             scanJob = App.scope.launch(Dispatchers.IO) {
                 while (true) {
-                    val success = wifiManager.startScan()
-                    if (!success) {
-                        scanFailure()
+                    try {
+                        val success = wifiManager.startScan()
+                    } catch (e: SecurityException) {
+                        Log.e(TAG, "startScan failed, ${e.localizedMessage}")
                     }
                     delay(Config.Wifi.INTERVAL)
                 }
@@ -51,14 +53,8 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
             val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false)
             if (success) {
                 scanSuccess()
-            } else {
-                scanFailure()
             }
         }
-    }
-
-    fun scanFailure(){
-        Toast.makeText(context, "SSIDs will not be logged.", Toast.LENGTH_LONG).show()
     }
 
     private fun scanSuccess() = App.scope.launch(Dispatchers.IO) {
