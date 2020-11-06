@@ -18,7 +18,7 @@ class UploadSettings(var context : Context) {
 
     fun OpenUploadSettings(){
         val builder = AlertDialog.Builder(context)
-        builder.setTitle("com.android.parcelrec.networking.Upload settings")
+        builder.setTitle("Upload Settings")
         builder.setView(view)
         builder.setPositiveButton("OK") { dialog, which ->
             saveConfiguration()
