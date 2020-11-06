@@ -6,12 +6,15 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
 import com.android.parcelrec.App
-import com.android.parcelrec.utils.*
-import kotlinx.coroutines.*
+import com.android.parcelrec.utils.Config
+import com.android.parcelrec.utils.Logger
+import com.android.parcelrec.utils.Util
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.abs
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 open class SensorBase(context: Context, filename_tag:String) : SensorEventListener, Logger(context, filename_tag)  {
     // Sensor Variables
@@ -21,6 +24,7 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
     // Previous values
     var prevValues = ArrayList<FloatArray>()
     var numPrevValues = 10
+    var lastUpdate = System.currentTimeMillis()
 
     // Threshold Levels
     var threshold : Double = 0.0
@@ -34,7 +38,12 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
     override fun onSensorChanged(event: SensorEvent?) {
         if(event == null) return
 
-        // Check Threshold
+        // Check if 100ms have passed
+        val curTime = System.currentTimeMillis()
+        if (curTime - lastUpdate < 100) return
+        lastUpdate = curTime
+
+        // Check Threshold for each axis
         var thresholdExceeded = (prevValues.count() == 0)
         event.values.withIndex().forEach { axis ->
             prevValues.forEach { prevValue ->
@@ -50,13 +59,8 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
         prevValues.add(event.values.copyOf())
         if(prevValues.count() > numPrevValues) prevValues.removeAt(0)
 
+        // Finally work with the exceeded threshold
         if(thresholdExceeded) onThresholdExceeded(event)
-
-        sensorManager.unregisterListener(this)
-        App.scope.launch(Dispatchers.IO) {
-            delay(100)
-            registerListener()
-        }
     }
 
     open fun onThresholdExceeded(event: SensorEvent?) {
@@ -73,13 +77,13 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
             Log.i(sensor.name,"onThresholdStarted")
             inThreshold = true
             App.scope.launch(Dispatchers.IO) {
-                for(l in thresholdStartedListeners) l.invoke()
+                thresholdStartedListeners.forEach { it.invoke() }
             }
         }
         thresholdDidEndJob = App.scope.launch(Dispatchers.IO) {
             delay(Config.Sensor.MOVEMENT_DELAY)
             inThreshold = false
-            Log.i(sensor.name, "onThresholdEnded")
+            Log.i(sensor.name, "Threshold Ended")
             App.scope.launch(Dispatchers.IO) {
                 thresholdEndedListeners.forEach { it.invoke() }
             }
@@ -87,17 +91,13 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
     }
 
     fun run(){
-        registerListener()
-    }
-
-    private fun registerListener() {
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
     fun stop(){
         sensorManager.unregisterListener(this)
         if(inThreshold) {
-            for(l in thresholdEndedListeners) l.invoke()
+            thresholdEndedListeners.forEach { it.invoke() }
             inThreshold = false
         }
         thresholdDidEndJob?.cancel()
