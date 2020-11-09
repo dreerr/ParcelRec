@@ -228,7 +228,11 @@ class CameraRecorder(context: Context) {
             initializeCamera().join()
             // Used to rotate the output media to match device orientation
             relativeOrientation = OrientationLiveData(context, characteristics)
-            startRecording()
+            try {
+                startRecording()
+            } catch (e: IllegalStateException) {
+                Log.e(TAG,"Could not start recording! ${e.localizedMessage}")
+            }
         }
     }
 

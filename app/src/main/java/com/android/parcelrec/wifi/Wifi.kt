@@ -18,7 +18,8 @@ import kotlinx.coroutines.*
 class Wifi(context : Context) : Logger(context, "WIFI") {
     private var wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
     var scanJob: Job? = null
-    private var availableNetworks = mutableListOf<ScanResult>()
+    private var lastScanResults = mutableListOf<ScanResult>()
+    // lastScan
 
     fun run(){
         if (!wifiManager.isWifiEnabled){
@@ -32,7 +33,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
         App.accelerometer?.thresholdStartedListeners?.add {
             if(scanJob!=null && scanJob!!.isActive) return@add
             scanJob = App.scope.launch(Dispatchers.IO) {
-                while (true) {
+                while (isActive) {
                     try {
                         val success = wifiManager.startScan()
                     } catch (e: SecurityException) {
@@ -58,30 +59,24 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
     }
 
     private fun scanSuccess() = App.scope.launch(Dispatchers.IO) {
-        val results = wifiManager.scanResults
+        val scanResults = wifiManager.scanResults
         Log.d("WIFI", "Wifi scan success.")
-        results.forEach {
-            if (!availableNetworks.contains(it)){
+        scanResults.forEach {
+            if (!lastScanResults.any{ lastNetwork -> lastNetwork.BSSID == it.BSSID }){
                 //New network found
-                availableNetworks.add(it)
+                lastScanResults.add(it)
                 val line = "${Util.simpleTime};${it.SSID};${it.BSSID};;\n"
                 writeLine(line)
             }
         }
 
-        val elementToRemove = arrayListOf<ScanResult>()
-        availableNetworks.forEach {
-            if (!results.contains(it)){
+        lastScanResults.toList().forEach {
+            if (!scanResults.any{ network -> network.BSSID == it.BSSID }){
                 //Lost a network
-                elementToRemove.add(it)
+                lastScanResults.remove(it)
                 val line = "${Util.simpleTime};;;${it.SSID};${it.BSSID}\n"
                 writeLine(line)
             }
-        }
-
-        //Remove elements that were lost
-        elementToRemove.forEach {
-            availableNetworks.remove(it)
         }
     }
 
@@ -89,7 +84,11 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
 
     fun stop(){
         scanJob?.cancel()
-        context.unregisterReceiver(wifiScanReceiver)
+        try {
+            context.unregisterReceiver(wifiScanReceiver)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "context.unregisterReceiver(wifiScanReceiver) failed!")
+        }
         stopLog()
     }
 

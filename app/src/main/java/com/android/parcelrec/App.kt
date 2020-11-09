@@ -32,7 +32,8 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        storageDir = applicationContext.getExternalFilesDir(null)!!
+        val storageDirs = applicationContext.getExternalFilesDirs(null)
+        storageDir = storageDirs.filterNotNull().last()
         settings = Settings(applicationContext)
         uploadManager = UploadManager(applicationContext)
 

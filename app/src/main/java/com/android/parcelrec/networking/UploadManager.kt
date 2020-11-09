@@ -27,10 +27,14 @@ class UploadManager(val context: Context) {
     private var uploadJob: Job? = null
     private val client = OkHttpClient()
     private var totalUploads = 0
+    private var connectionBlocked = false
     var totalTraffic = 0L
         private set
     val status: String
-        get() = "${filesToUpload.size} / $totalUploads"
+        get() {
+            return "${filesToUpload.size} / $totalUploads   " +
+                    (if (connectionBlocked) "❌" else "🌍")
+        }
 
     var url = App.settings.url!!
 
@@ -55,30 +59,34 @@ class UploadManager(val context: Context) {
             val TAG = TAG
             while (filesToUpload.isNotEmpty()) {
                 while (!Util.isOnline()) {
+                    connectionBlocked = true
                     Log.d(TAG, "Waiting 30s for network")
                     delay(30_000)
                 }
-
-                filesToUpload.toMutableList().forEach {
-                    if (it.length() <= 0) {
-                        Log.d(TAG, "${it.name} has 0 Byte, deleting")
+                connectionBlocked = false
+                filesToUpload.toList().forEach {file ->
+                    if (file.length() <= 0) {
+                        Log.d(TAG, "${file.name} has 0 Byte, deleting")
                         try {
-                            it.delete()
-                            filesToUpload.remove(it)
+                            file.delete()
+                            filesToUpload.remove(file)
                         } catch (e: Exception) {
-                            Log.e(TAG, "Deleting failed: ${it.name} ${e.localizedMessage}")
+                            Log.e(TAG, "Deleting failed: ${file.name} ${e.localizedMessage}")
                         }
                         return@forEach
                     }
 
                     try {
-                        upload(it)
-                        it.delete()
-                        filesToUpload.remove(it)
+                        upload(file)
+                        file.delete()
+                        filesToUpload.remove(file)
                     } catch (e: Exception) {
-                        Log.e(TAG, "Uploading failed: ${it.name} ${e.localizedMessage}")
+                        Log.e(TAG, "Uploading failed: ${file.name} ${e.localizedMessage}")
                     }
                 }
+
+                // Contemplate a bit about life, the universe and everything
+                if(filesToUpload.isNotEmpty()) delay(42_000)
             }
         }
     }
@@ -108,8 +116,16 @@ class UploadManager(val context: Context) {
             .onFailure {
                 Log.e(TAG, "API not available, trying backup: ${it.localizedMessage}")
                 response = requestOnURL(App.settings.urlBackup!!)
+                // If we fail here, we get back to uploadFiles()
+
                 Log.i(TAG, "Backup API ${App.settings.urlBackup} successful!")
                 url = App.settings.urlBackup!!
+
+                // After 15 minutes set back to normal URL
+                App.scope.launch(Dispatchers.IO) {
+                    delay(15 * 60_000)
+                    url = App.settings.url!!
+                }
             }
         if (!response!!.isSuccessful) {
             throw IOException("Unexpected HTTP code: ${response!!.code}")

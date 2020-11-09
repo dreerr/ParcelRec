@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.text.format.Formatter.formatFileSize
 import android.text.format.Formatter.formatShortFileSize
 import android.view.View
 import android.widget.Toast
@@ -72,8 +73,8 @@ class MainActivity : AppCompatActivity() {
                         WiFi: ${App.wifi?.status}
                         
                         Uploads: ${App.uploadManager.status}
-                        Traffic: ${formatShortFileSize(applicationContext, App.uploadManager.totalTraffic)}
-                        Free Space: ${formatShortFileSize(applicationContext, Util.bytesAvailable)}
+                        Traffic: ${formatFileSize(applicationContext, App.uploadManager.totalTraffic)}
+                        Free Space: ${formatFileSize(applicationContext, Util.bytesAvailable)}
                     """.trimIndent()
                 }
                 delay(250)

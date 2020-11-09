@@ -115,8 +115,8 @@ class SensorService : Service(){
             NotificationManager.IMPORTANCE_HIGH
         ).let {
             it.description = "ParcelRec Channel"
-            it.enableLights(true)
-            it.lightColor = Color.RED
+            //it.enableLights(true)
+            //it.lightColor = Color.RED
             it
         }
         notificationManager.createNotificationChannel(channel)
