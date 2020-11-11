@@ -1,14 +1,15 @@
 package com.android.parcelrec.networking
 
 import android.content.Context
+import android.text.format.Formatter
 import android.util.Log
 import com.android.parcelrec.App
 import com.android.parcelrec.utils.Config
 import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -18,53 +19,73 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.Response
 import java.io.File
 import java.io.IOException
+import java.lang.Long.max
 import java.nio.file.Files
-import java.util.concurrent.TimeUnit
+import java.text.SimpleDateFormat
+import java.util.*
 
+enum class UploadManagerStatus {
+    SLEEPING, ERROR, UPLOADING, INITIALIZE
+}
 
 class UploadManager(val context: Context) {
     private var filesToUpload = mutableListOf<File>()
-    private var uploadJob: Job? = null
+    private var currentStatus = UploadManagerStatus.INITIALIZE
     private val client = OkHttpClient()
+    private var url = App.settings.url!!
+    private var totalTraffic = 0L
     private var totalUploads = 0
-    private var connectionBlocked = false
-    var totalTraffic = 0L
-        private set
+    private var lastUpdate = 0L
+    private val nextUpdate
+        get() = lastUpdate + App.settings.uploadInterval * 60_000L
+
+
     val status: String
         get() {
-            return "${filesToUpload.size} / $totalUploads   " +
-                    (if (connectionBlocked) "❌" else "🌍")
+            val icon = when (currentStatus) {
+                UploadManagerStatus.INITIALIZE -> "🎀"
+                UploadManagerStatus.SLEEPING -> "💤"
+                UploadManagerStatus.UPLOADING -> "🌍"
+                UploadManagerStatus.ERROR -> "❌"
+            }
+            val millisRemaining = max(0, nextUpdate - Date().time)
+            val date = Date(millisRemaining)
+            val formatter = SimpleDateFormat("mm:ss")
+            val remaining = if(millisRemaining > 0 && filesToUpload.size > 0)
+                "(${formatter.format(date)})" else ""
+            return """
+                Files in Queue: ${filesToUpload.size}  $icon   $remaining 
+                Total Traffic: ${Formatter.formatFileSize(
+                    context,
+                    totalTraffic
+                )} / $totalUploads Files
+                Free Space: ${Formatter.formatFileSize(
+                    context,
+                    Util.bytesAvailable
+                )}""".trimIndent()
         }
 
-    var url = App.settings.url!!
+
 
     init {
         App.storageDir.walk().forEach {
             if(it.isFile) filesToUpload.add(it)
         }
-        uploadFiles()
-    }
-
-    fun add(file:File) {
-        if(!filesToUpload.contains(file)) {
-            filesToUpload.add(file)
-            Log.d(TAG, "${file.name} was added for upload, ${filesToUpload.size} in queue")
-            uploadFiles()
-        }
-    }
-
-    private fun uploadFiles() {
-        if(uploadJob!=null && uploadJob!!.isActive) return
-        uploadJob = App.scope.launch(Dispatchers.IO) {
-            val TAG = TAG
-            while (filesToUpload.isNotEmpty()) {
-                while (!Util.isOnline()) {
-                    connectionBlocked = true
-                    Log.d(TAG, "Waiting 30s for network")
-                    delay(30_000)
+        App.scope.launch(Dispatchers.IO) {
+            while (isActive) {
+                while (nextUpdate > Date().time) {
+                    currentStatus = UploadManagerStatus.SLEEPING
+                    delay(1_000)
                 }
-                connectionBlocked = false
-                filesToUpload.toList().forEach {file ->
+
+                while (!Util.isOnline()) {
+                    currentStatus = UploadManagerStatus.ERROR
+                    Log.d(TAG, "Waiting 10s for network")
+                    delay(10_000)
+                }
+
+                currentStatus = UploadManagerStatus.UPLOADING
+                filesToUpload.toList().forEach { file ->
                     if (file.length() <= 0) {
                         Log.d(TAG, "${file.name} has 0 Byte, deleting")
                         try {
@@ -77,7 +98,7 @@ class UploadManager(val context: Context) {
                     }
 
                     try {
-                        upload(file)
+                        uploadFile(file)
                         file.delete()
                         filesToUpload.remove(file)
                     } catch (e: Exception) {
@@ -85,13 +106,30 @@ class UploadManager(val context: Context) {
                     }
                 }
 
-                // Contemplate a bit about life, the universe and everything
-                if(filesToUpload.isNotEmpty()) delay(42_000)
+                if(filesToUpload.isEmpty()) {
+                    currentStatus = UploadManagerStatus.SLEEPING
+                    lastUpdate = Date().time
+                } else {
+                    currentStatus = UploadManagerStatus.ERROR
+                    delay(1_000)
+                    // retry
+                }
             }
         }
     }
 
-    private fun upload(file: File) {
+    fun uploadNow() {
+        lastUpdate = 0L
+    }
+
+    fun add(file:File) {
+        if(!filesToUpload.contains(file)) {
+            filesToUpload.add(file)
+            Log.d(TAG, "${file.name} was added for upload, ${filesToUpload.size} in queue")
+        }
+    }
+
+    private fun uploadFile(file: File) {
         val contentType = Files.probeContentType(file.toPath()).toMediaType()
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)

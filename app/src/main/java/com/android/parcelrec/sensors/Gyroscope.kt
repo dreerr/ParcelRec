@@ -5,7 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEventListener
 import com.android.parcelrec.utils.Config
 
-class Gyroscope(context: Context, fileName: String) : SensorEventListener, SensorBase(context, fileName) {
+class Gyroscope(context: Context) : SensorEventListener, SensorBase(context, "Gyroscope") {
 
     init {
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)

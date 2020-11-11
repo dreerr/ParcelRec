@@ -53,19 +53,5 @@
         android:layout_width="match_parent"
         android:layout_height="25dp" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Recording Interval (Minutes)"
-        android:textSize="18sp" />
-
-    <EditText
-        android:id="@+id/rec_interval"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:autofillHints="24"
-        android:inputType="number" />
-
 
 </LinearLayout>

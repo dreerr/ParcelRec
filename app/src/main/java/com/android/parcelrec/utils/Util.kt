@@ -1,6 +1,5 @@
 package com.android.parcelrec.utils
 import android.os.StatFs
-import android.util.Log
 import com.android.parcelrec.App
 import java.io.File
 import java.net.InetAddress
@@ -21,7 +20,8 @@ object Util {
         return false
     }
     fun getFile(fileNameTag: String, extension: String): File {
-        return File(App.storageDir, "$fileNameTag$simpleTime.$extension")
+        val date = SimpleDateFormat("yyyy-MM-dd__HH-mm-ss__SSS", Locale.US).format(Date())
+        return File(App.storageDir, "$fileNameTag$date.$extension")
 
     }
     val bytesAvailable: Long
@@ -34,9 +34,9 @@ object Util {
         val megAvailable = bytesAvailable / (1024 * 1024)
         return megAvailable > 1024 // over 1GB
     }
-    @JvmStatic
-    val simpleTime: String
-        get() = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date())
+
+    val dateString: String
+        get() = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS", Locale.US).format(Date())
 }
 
 val Any.TAG: String

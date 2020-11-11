@@ -5,7 +5,6 @@ import android.util.Log
 import com.android.parcelrec.App
 import java.io.BufferedWriter
 import java.io.File
-import java.io.IOException
 import java.nio.charset.Charset
 import java.util.*
 
@@ -25,7 +24,7 @@ open class Logger(open var context: Context, var fileNameTag : String) {
 
     fun writeLine(line : String) {
         if(lastCreated == 0L) newLog()
-        if((Date().time - lastCreated) > 60_000L * App.settings.uploadRate) {
+        if((Date().time - lastCreated) > Config.rotateMillis) {
             rotate()
         }
         bufferedWriter.runCatching { this!!.write(line) }
@@ -38,7 +37,7 @@ open class Logger(open var context: Context, var fileNameTag : String) {
         newLog()
     }
 
-    fun closeLog() {
+    private fun closeLog() {
         if(logFile==null) return
         bufferedWriter?.close()
         Log.d(TAG, "Closed file ${logFile?.name}")

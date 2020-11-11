@@ -6,7 +6,6 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
 import com.android.parcelrec.App
-import com.android.parcelrec.utils.Config
 import com.android.parcelrec.utils.Logger
 import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.Dispatchers
@@ -16,22 +15,22 @@ import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.abs
 
-open class SensorBase(context: Context, filename_tag:String) : SensorEventListener, Logger(context, filename_tag)  {
+open class SensorBase(context: Context, fileNameTag:String) : SensorEventListener, Logger(context, fileNameTag)  {
     // Sensor Variables
     var sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     lateinit var sensor : Sensor
 
     // Previous values
-    var prevValues = ArrayList<FloatArray>()
+    private var prevValues = ArrayList<FloatArray>()
     var numPrevValues = 10
-    var lastUpdate = System.currentTimeMillis()
+    private var lastUpdate = Date().time
 
     // Threshold Levels
     var threshold : Double = 0.0
 
     // Threshold Events
-    var inThreshold = false
-    var thresholdDidEndJob: Job? = null
+    private var inThreshold = false
+    private var thresholdDidEndJob: Job? = null
     var thresholdStartedListeners = ArrayList<()->Unit>()
     var thresholdEndedListeners = ArrayList<()->Unit>()
 
@@ -39,7 +38,7 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
         if(event == null) return
 
         // Check if 100ms have passed
-        val curTime = System.currentTimeMillis()
+        val curTime = Date().time
         if (curTime - lastUpdate < 100) return
         lastUpdate = curTime
 
@@ -67,7 +66,7 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
         if(event==null) return
 
         // Do Logging
-        val line = "${Util.simpleTime};${event.values.joinToString(";")}\n"
+        val line = "${Util.dateString};${event.values.joinToString(";")}\n"
         writeLine(line)
 
         // Handle Threshold Events
@@ -81,7 +80,7 @@ open class SensorBase(context: Context, filename_tag:String) : SensorEventListen
             }
         }
         thresholdDidEndJob = App.scope.launch(Dispatchers.IO) {
-            delay(Config.Sensor.MOVEMENT_DELAY)
+            delay(App.settings.recDuration * 1000L)
             inThreshold = false
             Log.i(sensor.name, "Threshold Ended")
             App.scope.launch(Dispatchers.IO) {

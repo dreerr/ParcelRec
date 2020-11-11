@@ -19,7 +19,6 @@ class CameraSettings(var context : Context) {
     private val cameraId = view.camera_id
     private val resolution = view.resolution
     private val recDuration = view.rec_duration
-    private val recInterval = view.rec_interval
 
     private val settingsHelper = CameraSettingsHelper(context)
     private val cameraIdList = settingsHelper.getCameraIDs()
@@ -86,13 +85,11 @@ class CameraSettings(var context : Context) {
         App.settings.width = selectedSize!![selectedSizeIdx].width
 
         App.settings.recDuration = recDuration.text.toString().toInt()
-        App.settings.recInterval = recInterval.text.toString().toInt()
     }
 
     private fun loadConfiguration(){
         cameraId.setSelection(App.settings.camId!!.toInt())
         recDuration.setText(App.settings.recDuration.toString())
-        recInterval.setText(App.settings.recInterval.toString())
 
         //Resolution is loaded in buildCameraResolutionSpinner
     }

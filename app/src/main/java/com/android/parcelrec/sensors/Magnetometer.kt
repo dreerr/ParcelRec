@@ -5,7 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEventListener
 import com.android.parcelrec.utils.Config
 
-class Magnetometer(context: Context, fileName: String) : SensorEventListener, SensorBase(context, fileName) {
+class Magnetometer(context: Context) : SensorEventListener, SensorBase(context, "Magnetometer") {
 
     init {
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)

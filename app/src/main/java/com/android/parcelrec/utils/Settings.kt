@@ -12,15 +12,15 @@ const val KEY_CAM_ID = "camId"
 /**Network settings*/
 const val KEY_API_URL = "url"
 const val KEY_API_BACKUP_URL = "urlBackup"
-const val KEY_RATE = "uploadRate"
+const val KEY_INTERVAL = "uploadInterval"
 
 class Settings(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("SETTINGS", Context.MODE_PRIVATE)
     private val editor = sharedPreferences.edit()
 
-    var uploadRate
-        get() = this.sharedPreferences.getInt(KEY_RATE, 15)
-        set(value) = editor.putInt(KEY_RATE, value).apply()
+    var uploadInterval
+        get() = this.sharedPreferences.getInt(KEY_INTERVAL, 60)
+        set(value) = editor.putInt(KEY_INTERVAL, value).apply()
 
     var url: String?
         get() = this.sharedPreferences.getString(KEY_API_URL, "https://palacz.my.to/1")
@@ -42,12 +42,22 @@ class Settings(context: Context) {
         get() = this.sharedPreferences.getInt(KEY_REC_DURATION, 30)
         set(value) = editor.putInt(KEY_REC_DURATION, value).apply()
 
-    var recInterval
-        get() = this.sharedPreferences.getInt(KEY_REC_INTERVAL, 60)
-        set(value) = editor.putInt(KEY_REC_INTERVAL, value).apply()
-
-
     var camId
         get() = this.sharedPreferences.getString(KEY_CAM_ID, "0")
         set(value) = editor.putString(KEY_CAM_ID, value).apply()
+
+    var rotateMillis = 5 * 60_000L
+}
+
+object Config {
+    const val rotateMillis = 5 * 60_000L
+    object Sensor {
+        const val ACC_THRESHOLD = 0.13
+        const val GYRO_THRESHOLD = 0.1
+        const val MAG_THRESHOLD = 1.5
+    }
+
+    object Network {
+        const val API_KEY = "dc5daf82-f7a0-11ea-adc1-0242ac120002"
+    }
 }

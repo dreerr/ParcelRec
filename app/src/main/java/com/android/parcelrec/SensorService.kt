@@ -3,14 +3,11 @@ package com.android.parcelrec
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.*
 import android.util.Log
 import android.widget.Toast
 import com.android.parcelrec.utils.SensorServiceActions
 import com.android.parcelrec.utils.TAG
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 
 class SensorService : Service(){
@@ -65,6 +62,7 @@ class SensorService : Service(){
 
         App.wifi?.run()
         App.accelerometer?.run()
+        App.battery?.run()
         App.gyroscope?.run()
         App.magnetometer?.run()
         App.camera?.run()
@@ -89,6 +87,7 @@ class SensorService : Service(){
         isServiceStarted = false
         App.wifi?.stop()
         App.accelerometer?.stop()
+        App.battery?.stop()
         App.gyroscope?.stop()
         App.magnetometer?.stop()
         App.gps?.stop()
@@ -98,11 +97,13 @@ class SensorService : Service(){
     private fun rotate() {
         Log.d(TAG, "Rotating all Sensors")
         App.wifi?.rotate()
+        App.battery?.rotate()
         App.accelerometer?.rotate()
         App.gyroscope?.rotate()
         App.magnetometer?.rotate()
         App.gps?.rotate()
         App.camera?.rotate()
+        App.uploadManager.uploadNow()
     }
 
     private fun createNotification(): Notification {
@@ -115,8 +116,7 @@ class SensorService : Service(){
             NotificationManager.IMPORTANCE_HIGH
         ).let {
             it.description = "ParcelRec Channel"
-            //it.enableLights(true)
-            //it.lightColor = Color.RED
+            it.enableLights(false)
             it
         }
         notificationManager.createNotificationChannel(channel)

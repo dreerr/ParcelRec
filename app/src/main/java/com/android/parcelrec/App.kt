@@ -1,16 +1,19 @@
 package com.android.parcelrec
 
 import android.app.Application
+import android.content.Context
+import android.os.BatteryManager
 import android.util.Log
 import com.android.parcelrec.camera.Camera
-import com.android.parcelrec.gps.Gps
+import com.android.parcelrec.sensors.Gps
 import com.android.parcelrec.utils.Settings
 import com.android.parcelrec.networking.UploadManager
 import com.android.parcelrec.sensors.Accelerometer
+import com.android.parcelrec.sensors.Battery
 import com.android.parcelrec.sensors.Gyroscope
 import com.android.parcelrec.sensors.Magnetometer
 import com.android.parcelrec.utils.TAG
-import com.android.parcelrec.wifi.Wifi
+import com.android.parcelrec.sensors.Wifi
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import java.io.File
@@ -22,9 +25,10 @@ class App : Application() {
         lateinit var storageDir: File
 
         var accelerometer : Accelerometer? = null
+        var battery : Battery? = null
+        var camera : Camera? = null
         var gyroscope : Gyroscope? = null
         var magnetometer: Magnetometer? = null
-        var camera : Camera? = null
         var gps : Gps? = null
         var wifi : Wifi? = null
         val scope = MainScope()
@@ -45,11 +49,12 @@ class App : Application() {
                 Log.e(TAG, "Could not initialize: ${e.localizedMessage}")
                 null
             }
-        accelerometer = tryOrNull { Accelerometer(applicationContext, "ACC") }
-        gyroscope = tryOrNull { Gyroscope(applicationContext, "GYRO") }
-        magnetometer = tryOrNull { Magnetometer(applicationContext, "MAG") }
-        gps = tryOrNull { Gps(applicationContext) }
+        accelerometer = tryOrNull { Accelerometer(applicationContext) }
+        battery =  tryOrNull { Battery(applicationContext) }
         camera = tryOrNull { Camera(applicationContext) }
+        gps = tryOrNull { Gps(applicationContext) }
+        gyroscope = tryOrNull { Gyroscope(applicationContext) }
+        magnetometer = tryOrNull { Magnetometer(applicationContext) }
         wifi = tryOrNull { Wifi(applicationContext) }
     }
 

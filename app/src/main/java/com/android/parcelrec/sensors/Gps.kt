@@ -1,4 +1,4 @@
-package com.android.parcelrec.gps
+package com.android.parcelrec.sensors
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -14,7 +14,6 @@ import com.android.parcelrec.utils.PermissionHelper
 import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class Gps(context: Context) : LocationListener, Logger(context, "GPS")
@@ -34,7 +33,7 @@ class Gps(context: Context) : LocationListener, Logger(context, "GPS")
             if(lastLoc?.latitude == loc.latitude &&
                 lastLoc?.longitude == loc.longitude) return@launch
 
-            val line = "${Util.simpleTime};${loc.latitude};${loc.longitude}\n"
+            val line = "${Util.dateString};${loc.latitude};${loc.longitude}\n"
             Log.d(TAG, "Logging coordinates: ${loc.latitude}, ${loc.longitude}")
 
             writeLine(line)

@@ -10,7 +10,6 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.text.format.Formatter.formatFileSize
-import android.text.format.Formatter.formatShortFileSize
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +24,7 @@ import kotlinx.coroutines.*
 class MainActivity : AppCompatActivity() {
 
     var statusJob : Job? = null
+    var activityVisible = true
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,24 +63,32 @@ class MainActivity : AppCompatActivity() {
 
         statusJob = App.scope.launch(Dispatchers.IO) {
             while(isActive) {
+                delay(250)
+                if (!activityVisible) continue
                 runOnUiThread {
                     status.text = """
-                        Camera: ${App.camera?.status}
                         Accelerometer: ${App.accelerometer?.status}
+                        Battery: ${App.battery?.status}
+                        Camera: ${App.camera?.status}
+                        GPS: ${App.gps?.status}
                         Gyroscope: ${(if (App.gyroscope != null) App.gyroscope!!.status else "n/a")}
                         Magnetometer: ${(if (App.magnetometer != null) App.magnetometer!!.status else "n/a")}
-                        GPS: ${App.gps?.status}
                         WiFi: ${App.wifi?.status}
-                        
-                        Uploads: ${App.uploadManager.status}
-                        Traffic: ${formatFileSize(applicationContext, App.uploadManager.totalTraffic)}
-                        Free Space: ${formatFileSize(applicationContext, Util.bytesAvailable)}
-                    """.trimIndent()
+                    """.trimIndent() + "\n\n${App.uploadManager.status}"
                 }
-                delay(250)
             }
         }
     }
+    override fun onResume() {
+        super.onResume()
+        activityVisible = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        activityVisible = false
+    }
+
 
     private fun startMeasurement(){
         startStopButton.text = "STOP"
@@ -190,16 +198,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun unregisterReceiver() {
         val apiLevel = Build.VERSION.SDK_INT
-
-        if (apiLevel >= 7) {
-            try {
-                applicationContext.unregisterReceiver(mPowerKeyReceiver)
-            } catch (e: IllegalArgumentException) {
-                mPowerKeyReceiver = null
-            }
-
-        } else {
+        try {
             applicationContext.unregisterReceiver(mPowerKeyReceiver)
+        } catch (e: IllegalArgumentException) {
             mPowerKeyReceiver = null
         }
     }

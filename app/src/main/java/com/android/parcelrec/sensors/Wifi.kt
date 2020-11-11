@@ -1,4 +1,4 @@
-package com.android.parcelrec.wifi
+package com.android.parcelrec.sensors
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,13 +9,12 @@ import android.net.wifi.WifiManager
 import android.util.Log
 import android.widget.Toast
 import com.android.parcelrec.App
-import com.android.parcelrec.utils.Config
 import com.android.parcelrec.utils.Logger
 import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
 
-class Wifi(context : Context) : Logger(context, "WIFI") {
+class Wifi(context : Context) : Logger(context, "WiFi") {
     private var wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
     var scanJob: Job? = null
     private var lastScanResults = mutableListOf<ScanResult>()
@@ -39,7 +38,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
                     } catch (e: SecurityException) {
                         Log.e(TAG, "startScan failed, ${e.localizedMessage}")
                     }
-                    delay(Config.Wifi.INTERVAL)
+                    delay(60*60*1000L)
                 }
             }
         }
@@ -65,7 +64,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
             if (!lastScanResults.any{ lastNetwork -> lastNetwork.BSSID == it.BSSID }){
                 //New network found
                 lastScanResults.add(it)
-                val line = "${Util.simpleTime};${it.SSID};${it.BSSID};;\n"
+                val line = "${Util.dateString};${it.SSID};${it.BSSID};;\n"
                 writeLine(line)
             }
         }
@@ -74,7 +73,7 @@ class Wifi(context : Context) : Logger(context, "WIFI") {
             if (!scanResults.any{ network -> network.BSSID == it.BSSID }){
                 //Lost a network
                 lastScanResults.remove(it)
-                val line = "${Util.simpleTime};;;${it.SSID};${it.BSSID}\n"
+                val line = "${Util.dateString};;;${it.SSID};${it.BSSID}\n"
                 writeLine(line)
             }
         }

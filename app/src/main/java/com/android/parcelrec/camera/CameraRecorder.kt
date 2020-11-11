@@ -35,6 +35,7 @@ import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
 import java.io.File
+import java.util.*
 import kotlin.RuntimeException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -59,7 +60,7 @@ class CameraRecorder(context: Context) {
     }
 
     /** File where the recording will be saved */
-    private val outputFile: File by lazy { Util.getFile("CAM", "mp4") }
+    private val outputFile: File by lazy { Util.getFile("", "mp4") }
 
     /**
      * Setup a persistent [Surface] for the recorder so we can use it as an output target for the
@@ -106,8 +107,6 @@ class CameraRecorder(context: Context) {
             set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(args.fps, args.fps))
         }.build()
     }
-
-    private var recordingStartMillis: Long = 0L
 
     /** Live data listener for changes in the device orientation relative to the camera */
     private lateinit var relativeOrientation: OrientationLiveData
@@ -163,7 +162,6 @@ class CameraRecorder(context: Context) {
             prepare()
             start()
         }
-        recordingStartMillis = System.currentTimeMillis()
         Log.d(TAG, "Recording started")
 
     }
@@ -237,32 +235,26 @@ class CameraRecorder(context: Context) {
     }
 
     fun stop() {
-        Log.d(TAG, "TRY camera.close()")
         try {
+            Log.d(TAG, "TRY camera.close()")
             camera.close()
-        } catch (exc: Throwable) {
-            Log.e(TAG, "Error camera.close()", exc)
-        }
-        Log.d(TAG, "TRY recorder.stop()")
-        try {
+            Log.d(TAG, "TRY recorder.stop()")
             recorder.stop()
-        } catch (exc: IllegalStateException) {
-            Log.e(TAG, "Error recorder.stop()", exc)
-        }
-        Log.d(TAG, "TRY session.close()")
-        try {
+            Log.d(TAG, "TRY session.close()")
             session.close()
-        } catch (exc: Throwable) {
-            Log.e(TAG, "Error session.close()", exc)
+            Log.d(TAG, "TRY cameraThread.quitSafely()")
+            cameraThread.quitSafely()
+            Log.d(TAG, "TRY cameraThread.join()")
+            cameraThread.join()
+            Log.d(TAG, "TRY recorder.release()")
+            recorder.release()
+            Log.d(TAG, "TRY recorderSurface.release()")
+            recorderSurface.release()
+        } catch (e: Throwable) {
+            Log.e(TAG, "CameraRecorder.stop() Error: ${e.localizedMessage}")
+            Log.e(TAG, "${e.stackTrace}")
         }
 
-        Log.d(TAG, "cameraThread.quitSafely()")
-        cameraThread.quitSafely()
-        cameraThread.join()
-
-        Log.d(TAG, "recorder.release()")
-        recorder.release()
-        recorderSurface.release()
         App.uploadManager.add(outputFile)
     }
 
