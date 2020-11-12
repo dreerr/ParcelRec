@@ -9,7 +9,6 @@ import java.util.*
 
 
 object Util {
-
     fun isOnline(): Boolean {
         try {
             var addresses = InetAddress.getAllByName("www.google.com")

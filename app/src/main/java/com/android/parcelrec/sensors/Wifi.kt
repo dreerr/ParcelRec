@@ -13,18 +13,22 @@ import com.android.parcelrec.utils.Logger
 import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
+import java.lang.Exception
 
 class Wifi(context : Context) : Logger(context, "WiFi") {
     private var wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-    var scanJob: Job? = null
+    private var scanJob: Job? = null
     private var lastScanResults = mutableListOf<ScanResult>()
-    // lastScan
+
+
+    init {
+        if (!wifiManager.isWifiEnabled){
+            throw Exception("Could not start WiFi!")
+        }
+    }
 
     fun run(){
-        if (!wifiManager.isWifiEnabled){
-            Toast.makeText(context, "Wifi is turned off, SSIDs will not be logged.", Toast.LENGTH_LONG).show()
-            return
-        }
+
         val intentFilter = IntentFilter()
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
         context.registerReceiver(wifiScanReceiver, intentFilter)

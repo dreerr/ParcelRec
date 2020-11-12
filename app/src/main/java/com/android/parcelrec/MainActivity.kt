@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
                         GPS: ${App.gps?.status}
                         Gyroscope: ${(if (App.gyroscope != null) App.gyroscope!!.status else "n/a")}
                         Magnetometer: ${(if (App.magnetometer != null) App.magnetometer!!.status else "n/a")}
-                        WiFi: ${App.wifi?.status}
+                        WiFi: ${(if (App.wifi != null) App.wifi!!.status else "n/a")}
                     """.trimIndent() + "\n\n${App.uploadManager.status}"
                 }
             }
