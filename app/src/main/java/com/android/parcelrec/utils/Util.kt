@@ -35,7 +35,11 @@ object Util {
     }
 
     val dateString: String
-        get() = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS", Locale.US).format(Date())
+        get() = dateString(Date().time)
+
+    fun dateString(timestamp: Long): String {
+        return SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS", Locale.US).format(Date(timestamp))
+    }
 }
 
 val Any.TAG: String
