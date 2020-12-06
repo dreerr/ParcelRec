@@ -92,6 +92,7 @@ class SensorService : Service(){
         App.magnetometer?.stop()
         App.gps?.stop()
         App.camera?.stop()
+        App.uploadManager.uploadNow()
     }
 
     private fun rotate() {
