@@ -27,6 +27,7 @@ class Battery(context : Context) : Logger(context, "Battery") {
                 if(lastLevel != batteryLevel) {
                     val line = "${Util.dateString};$batteryLevel\n"
                     writeLine(line)
+                    lastLevel = batteryLevel
                 }
                 delay(15 * 60_000)
             }
@@ -34,5 +35,6 @@ class Battery(context : Context) : Logger(context, "Battery") {
     }
     fun stop() {
         scanJob?.cancel()
+        stopLog()
     }
 }
