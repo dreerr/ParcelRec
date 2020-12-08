@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 enum class UploadManagerStatus {
-    SLEEPING, ERROR, UPLOADING, INITIALIZE
+    SLEEPING, ERROR, UPLOADING, INITIALIZE, PAUSED
 }
 
 class UploadManager(val context: Context) {
@@ -44,6 +44,7 @@ class UploadManager(val context: Context) {
         get() {
             val icon = when (currentStatus) {
                 UploadManagerStatus.INITIALIZE -> "🎀"
+                UploadManagerStatus.PAUSED -> "⏸"
                 UploadManagerStatus.SLEEPING -> "💤"
                 UploadManagerStatus.UPLOADING -> "🌍"
                 UploadManagerStatus.ERROR -> "❌"
@@ -73,6 +74,11 @@ class UploadManager(val context: Context) {
         }
         App.scope.launch(Dispatchers.IO) {
             while (isActive) {
+                while (!App.settings.uploadEnabled) {
+                    currentStatus = UploadManagerStatus.PAUSED
+                    delay(1_000)
+                }
+
                 while (nextUpdate > Date().time) {
                     currentStatus = UploadManagerStatus.SLEEPING
                     delay(1_000)

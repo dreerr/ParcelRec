@@ -10,6 +10,7 @@ const val KEY_REC_INTERVAL = "recInterval"
 const val KEY_CAM_ID = "camId"
 
 /**Network settings*/
+const val KEY_API_ENABLED = "uploadEnabled"
 const val KEY_API_URL = "url"
 const val KEY_API_BACKUP_URL = "urlBackup"
 const val KEY_INTERVAL = "uploadInterval"
@@ -18,16 +19,20 @@ class Settings(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("SETTINGS", Context.MODE_PRIVATE)
     private val editor = sharedPreferences.edit()
 
+    var uploadEnabled
+        get() = this.sharedPreferences.getBoolean(KEY_API_ENABLED, true)
+        set(value) = editor.putBoolean(KEY_API_ENABLED, value).apply()
+
     var uploadInterval
         get() = this.sharedPreferences.getInt(KEY_INTERVAL, 60)
         set(value) = editor.putInt(KEY_INTERVAL, value).apply()
 
     var url: String?
-        get() = this.sharedPreferences.getString(KEY_API_URL, "https://palacz.my.to/1")
+        get() = this.sharedPreferences.getString(KEY_API_URL, "https://palacz.my.to:49900/1")
         set(value) = editor.putString(KEY_API_URL, value).apply()
 
     var urlBackup: String?
-        get() = this.sharedPreferences.getString(KEY_API_BACKUP_URL, "http://10.1.1.2/1")
+        get() = this.sharedPreferences.getString(KEY_API_BACKUP_URL, "http://10.1.1.2:3000/1")
         set(value) = editor.putString(KEY_API_BACKUP_URL, value).apply()
 
     var width
