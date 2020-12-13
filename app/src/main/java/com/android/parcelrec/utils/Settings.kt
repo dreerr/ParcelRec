@@ -50,12 +50,10 @@ class Settings(context: Context) {
     var camId
         get() = this.sharedPreferences.getString(KEY_CAM_ID, "0")
         set(value) = editor.putString(KEY_CAM_ID, value).apply()
-
-    var rotateMillis = 5 * 60_000L
 }
 
 object Config {
-    const val rotateMillis = 5 * 60_000L
+    const val rotateMillis = 15 * 60_000L
     object Sensor {
         const val ACC_THRESHOLD = 0.13
         const val GYRO_THRESHOLD = 0.1
