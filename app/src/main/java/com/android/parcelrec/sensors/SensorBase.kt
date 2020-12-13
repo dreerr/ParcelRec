@@ -66,7 +66,7 @@ open class SensorBase(context: Context, fileNameTag:String) : SensorEventListene
         if(event==null) return
 
         // Do Logging
-        val line = "${Util.dateString(event.timestamp)};${event.values.joinToString(";")}\n"
+        val line = "${Util.dateString};${event.values.joinToString(";")}\n"
         writeLine(line)
 
         // Handle Threshold Events
