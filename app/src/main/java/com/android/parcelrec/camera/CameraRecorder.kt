@@ -235,25 +235,20 @@ class CameraRecorder(context: Context) {
     }
 
     fun stop() {
-        try {
-            Log.d(TAG, "TRY camera.close()")
-            camera.close()
-            Log.d(TAG, "TRY recorder.stop()")
-            recorder.stop()
-            Log.d(TAG, "TRY session.close()")
-            session.close()
-            Log.d(TAG, "TRY cameraThread.quitSafely()")
-            cameraThread.quitSafely()
-            Log.d(TAG, "TRY cameraThread.join()")
-            cameraThread.join()
-            Log.d(TAG, "TRY recorder.release()")
-            recorder.release()
-            Log.d(TAG, "TRY recorderSurface.release()")
-            recorderSurface.release()
-        } catch (e: Throwable) {
-            Log.e(TAG, "CameraRecorder.stop() Error: ${e.localizedMessage}")
-            Log.e(TAG, "${e.stackTrace}")
-        }
+        fun tryOrLog(f: () -> Unit) =
+            try {
+                f()
+            } catch (e: Exception) {
+                Log.e(TAG, "CameraRecorder.stop() Error: ${e.localizedMessage}")
+                Log.e(TAG, "${e.stackTrace}")
+            }
+        tryOrLog { camera.close() }
+        tryOrLog { recorder.stop() }
+        tryOrLog { session.close() }
+        tryOrLog { cameraThread.quitSafely() }
+        tryOrLog { cameraThread.join() }
+        tryOrLog { recorder.release() }
+        tryOrLog { recorderSurface.release() }
 
         App.uploadManager.add(outputFile)
     }

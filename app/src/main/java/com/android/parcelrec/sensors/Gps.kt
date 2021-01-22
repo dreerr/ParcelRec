@@ -6,60 +6,65 @@ import android.content.Context
 import android.content.Context.LOCATION_SERVICE
 import android.content.pm.PackageManager
 import android.location.*
-import android.location.LocationListener
-import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.android.parcelrec.App
 import com.android.parcelrec.utils.Logger
-import com.android.parcelrec.utils.PermissionHelper
 import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import java.util.*
 import java.util.concurrent.TimeUnit
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Task
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class Gps(context: Context) : Logger(context, "GPS") {
-    private val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
     private var lastLoc: Location? = null
 
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private lateinit var locationRequest: LocationRequest
-    private lateinit var locationCallback: LocationCallback
-    private var currentLocation: Location? = null
+    private var fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    lateinit var settingsClient: SettingsClient
+    lateinit var locationRequest: LocationRequest
+    lateinit var locationCallback: LocationCallback
 
     init {
-        initLocation()
+        createLocationRequest()
+        createLocationCallBack()
     }
 
-    private fun initLocation() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+    @SuppressLint("MissingPermission")
+    fun createLocationRequest() {
+
         locationRequest = LocationRequest().apply {
-            interval = TimeUnit.SECONDS.toMillis(3)
-            fastestInterval = TimeUnit.SECONDS.toMillis(1)
-            maxWaitTime = TimeUnit.SECONDS.toMillis(30)
+            interval = 10000
+            fastestInterval = 1000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                super.onLocationResult(locationResult)
-                if (locationResult?.lastLocation != null) {
-                    onLocationChanged(locationResult.lastLocation)
-                } else {
-                    Log.d(TAG, "Location information isn't available.")
-                }
-            }
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+
+        settingsClient = LocationServices.getSettingsClient(context)
+
+        val task: Task<LocationSettingsResponse> = settingsClient.checkLocationSettings(builder.build())
+
+        task.addOnFailureListener { exception ->
+            Log.e(TAG, "No GPS: {${exception.localizedMessage}}")
+            throw Exception(exception.localizedMessage)
         }
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            throw Exception("No Permission for GPS!")
+    }
+
+    private fun createLocationCallBack() {
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                super.onLocationResult(locationResult)
+                onLocationChanged(locationResult.lastLocation)
+                //Do what you want with the position here
+
+            }
         }
     }
 
@@ -76,19 +81,11 @@ class Gps(context: Context) : Logger(context, "GPS") {
 
     @SuppressLint("MissingPermission")
     fun run() {
-        App.accelerometer?.thresholdStartedListeners?.add {
-            fusedLocationProviderClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.getMainLooper()
-            )
-        }
-        App.accelerometer?.thresholdEndedListeners?.add {
-            fusedLocationProviderClient.removeLocationUpdates(locationCallback)
-        }
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
     fun stop() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
         stopLog()
     }
 }

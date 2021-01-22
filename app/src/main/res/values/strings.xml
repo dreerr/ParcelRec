@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ParcelRec</string>
+    <string name="stopButton">STOP</string>
+    <string name="startButton">START</string>
 </resources>

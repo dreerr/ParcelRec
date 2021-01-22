@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun startMeasurement(){
-        startStopButton.text = "STOP"
+        startStopButton.text = getString(R.string.stopButton)
         uploadButton.visibility = View.VISIBLE
         cameraSettingButton.visibility = View.GONE
         uploadSettingButton.visibility = View.GONE
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopMeasurement(){
-        startStopButton.text = "START"
+        startStopButton.text = getString(R.string.startButton)
         uploadButton.visibility = View.GONE
         cameraSettingButton.visibility = View.VISIBLE
         uploadSettingButton.visibility = View.VISIBLE
@@ -110,6 +110,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun isMeasurementRunning(): Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        @Suppress("DEPRECATION")
         for (service in manager.getRunningServices(Int.MAX_VALUE)) {
             if (SensorService::class.java.name == service.service.className) {
                 return true
@@ -158,6 +159,9 @@ class MainActivity : AppCompatActivity() {
         if(!PermissionHelper.hasGpsPermission(this)){
             permissions.add(ACCESS_FINE_LOCATION)
             permissions.add(ACCESS_COARSE_LOCATION)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                permissions.add(ACCESS_BACKGROUND_LOCATION)
+            }
         }
         if(!PermissionHelper.hasStoragePermission(this)){
             permissions.add(WRITE_EXTERNAL_STORAGE)
@@ -182,22 +186,21 @@ class MainActivity : AppCompatActivity() {
         theFilter.addAction(Intent.ACTION_SCREEN_ON)
         theFilter.addAction(Intent.ACTION_SCREEN_OFF)
 
-        mPowerKeyReceiver = object : BroadcastReceiver() {
+/*        mPowerKeyReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val strAction = intent!!.action
                 if (strAction == Intent.ACTION_SCREEN_ON) {
                     if(isMeasurementRunning()) {
-                        // actionOnService(SensorServiceActions.ROTATE)
+                        actionOnService(SensorServiceActions.ROTATE)
                     }
                 }
             }
-        }
+        }*/
 
         applicationContext.registerReceiver(mPowerKeyReceiver, theFilter)
     }
 
     private fun unregisterReceiver() {
-        val apiLevel = Build.VERSION.SDK_INT
         try {
             applicationContext.unregisterReceiver(mPowerKeyReceiver)
         } catch (e: IllegalArgumentException) {

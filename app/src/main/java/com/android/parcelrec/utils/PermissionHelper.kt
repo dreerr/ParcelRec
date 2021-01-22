@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -14,7 +15,7 @@ import androidx.core.content.ContextCompat
 /** Helper to ask camera permission.  */
 object PermissionHelper {
     private const val CAMERA_PERMISSION_CODE = 0
-    private const val CAMERA_PERMISSION = Manifest.permission.CAMERA
+    private const val CAMERA_PERMISSION = CAMERA
 
     /** Check to see we have the necessary permissions for this app.  */
     fun hasCameraPermission(activity: Context): Boolean {
@@ -28,8 +29,15 @@ object PermissionHelper {
     }
 
     fun hasGpsPermission(activity: Context) : Boolean {
-        return (ContextCompat.checkSelfPermission(activity, ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(activity, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+        val permission =
+            (ContextCompat.checkSelfPermission(activity, ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(activity, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            permission && ContextCompat.checkSelfPermission(activity, ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+        } else {
+            permission
+        }
     }
 
     fun hasStoragePermission(activity: Context) : Boolean{

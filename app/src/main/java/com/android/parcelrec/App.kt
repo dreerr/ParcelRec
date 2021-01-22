@@ -1,10 +1,7 @@
 package com.android.parcelrec
 
 import android.app.Application
-import android.content.Context
-import android.os.BatteryManager
 import android.util.Log
-import android.widget.Toast
 import com.android.parcelrec.camera.Camera
 import com.android.parcelrec.sensors.Gps
 import com.android.parcelrec.utils.Settings

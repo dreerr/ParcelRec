@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 enum class UploadManagerStatus {
-    SLEEPING, ERROR, UPLOADING, INITIALIZE, PAUSED
+    SLEEPING, ERROR, UPLOADING, INITIALIZE
 }
 
 class UploadManager(val context: Context) {
@@ -44,14 +44,13 @@ class UploadManager(val context: Context) {
         get() {
             val icon = when (currentStatus) {
                 UploadManagerStatus.INITIALIZE -> "🎀"
-                UploadManagerStatus.PAUSED -> "⏸"
                 UploadManagerStatus.SLEEPING -> "💤"
                 UploadManagerStatus.UPLOADING -> "🌍"
                 UploadManagerStatus.ERROR -> "❌"
             }
             val millisRemaining = max(0, nextUpdate - Date().time)
             val date = Date(millisRemaining)
-            val formatter = SimpleDateFormat("mm:ss")
+            val formatter = SimpleDateFormat("mm:ss", Locale.ENGLISH)
             val remaining = if(millisRemaining > 0 && filesToUpload.size > 0)
                 "(${formatter.format(date)})" else ""
             return """
@@ -74,10 +73,6 @@ class UploadManager(val context: Context) {
         }
         App.scope.launch(Dispatchers.IO) {
             while (isActive) {
-                while (!App.settings.uploadEnabled) {
-                    currentStatus = UploadManagerStatus.PAUSED
-                    delay(1_000)
-                }
 
                 while (nextUpdate > Date().time) {
                     currentStatus = UploadManagerStatus.SLEEPING
@@ -100,6 +95,11 @@ class UploadManager(val context: Context) {
                         } catch (e: Exception) {
                             Log.e(TAG, "Deleting failed: ${file.name} ${e.localizedMessage}")
                         }
+                        return@forEach
+                    }
+
+                    if(!App.settings.uploadEnabled && file.extension=="mp4") {
+                        filesToUpload.remove(file)
                         return@forEach
                     }
 
