@@ -18,7 +18,7 @@ object Util {
         }
         return false
     }
-    fun getFile(fileNameTag: String, extension: String): File {
+    fun newFileWithDate(fileNameTag: String, extension: String): File {
         val date = SimpleDateFormat("yyyy-MM-dd__HH-mm-ss__SSS", Locale.US).format(Date())
         return File(App.storageDir, "$fileNameTag$date.$extension")
 
@@ -39,6 +39,35 @@ object Util {
 
     fun dateString(timestamp: Long): String {
         return SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS", Locale.US).format(Date(timestamp))
+    }
+}
+
+object Log {
+    fun v(tag: String?, msg: String?): Int {
+        return println(android.util.Log.VERBOSE, tag, msg)
+    }
+
+    fun d(tag: String?, msg: String?): Int {
+        return println(android.util.Log.DEBUG, tag, msg)
+    }
+
+    fun i(tag: String?, msg: String?): Int {
+        return println(android.util.Log.INFO, tag, msg)
+    }
+
+    fun w(tag: String?, msg: String?): Int {
+        return println(android.util.Log.WARN, tag, msg)
+    }
+
+    fun e(tag: String?, msg: String?): Int {
+        return println(android.util.Log.ERROR, tag, msg)
+    }
+
+    fun println(priority: Int, tag: String?, msg: String?): Int {
+        val p = arrayOf("", "", "V", "D", "I", "W", "E", "A")
+        val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date().time)
+        App.logger.write("$date ${p[priority]}/$tag: $msg\n")
+        return android.util.Log.println(priority, tag, msg!!)
     }
 }
 

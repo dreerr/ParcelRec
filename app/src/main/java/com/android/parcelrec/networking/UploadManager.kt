@@ -2,7 +2,7 @@ package com.android.parcelrec.networking
 
 import android.content.Context
 import android.text.format.Formatter
-import android.util.Log
+import com.android.parcelrec.utils.Log
 import com.android.parcelrec.App
 import com.android.parcelrec.utils.Config
 import com.android.parcelrec.utils.TAG
@@ -155,6 +155,7 @@ class UploadManager(val context: Context) {
         }
 
         var response: Response? = null
+        url = App.settings.url!!
 
         runCatching { response = requestOnURL(url) }
             .onFailure {

@@ -1,26 +1,17 @@
 package com.android.parcelrec.sensors
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Context.LOCATION_SERVICE
-import android.content.pm.PackageManager
 import android.location.*
 import android.os.Looper
-import android.util.Log
-import androidx.core.app.ActivityCompat
+import com.android.parcelrec.utils.Log
 import com.android.parcelrec.App
 import com.android.parcelrec.utils.Logger
 import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
-import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import java.util.concurrent.TimeUnit
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class Gps(context: Context) : Logger(context, "GPS") {
     private var lastLoc: Location? = null
@@ -39,8 +30,8 @@ class Gps(context: Context) : Logger(context, "GPS") {
     fun createLocationRequest() {
 
         locationRequest = LocationRequest().apply {
-            interval = 10000
-            fastestInterval = 1000
+            interval = 20 * 1000
+            fastestInterval = 5 * 1000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
@@ -57,14 +48,16 @@ class Gps(context: Context) : Logger(context, "GPS") {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun createLocationCallBack() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 super.onLocationResult(locationResult)
                 onLocationChanged(locationResult.lastLocation)
-                //Do what you want with the position here
-
             }
+        }
+        App.accelerometer?.thresholdStartedListeners?.add {
+            fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
         }
     }
 
@@ -75,7 +68,7 @@ class Gps(context: Context) : Logger(context, "GPS") {
         val line = "${Util.dateString(loc.time)};${loc.latitude};${loc.longitude};" +
                 "${loc.altitude};${loc.accuracy};${loc.speed};${loc.bearing}\n"
 
-        writeLine(line)
+        write(line)
         lastLoc = loc
     }
 

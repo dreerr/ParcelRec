@@ -57,7 +57,7 @@ object Config {
     object Sensor {
         const val ACC_THRESHOLD = 0.13
         const val GYRO_THRESHOLD = 0.1
-        const val MAG_THRESHOLD = 1.5
+        const val MAG_THRESHOLD = 0.3
     }
 
     object Network {

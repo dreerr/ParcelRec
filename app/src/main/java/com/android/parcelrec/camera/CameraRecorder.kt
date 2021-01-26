@@ -27,7 +27,7 @@ import android.media.MediaCodec
 import android.media.MediaRecorder
 import android.os.Handler
 import android.os.HandlerThread
-import android.util.Log
+import com.android.parcelrec.utils.Log
 import android.util.Range
 import android.view.Surface
 import com.android.parcelrec.App
@@ -35,7 +35,6 @@ import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
 import java.io.File
-import java.util.*
 import kotlin.RuntimeException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -60,7 +59,7 @@ class CameraRecorder(context: Context) {
     }
 
     /** File where the recording will be saved */
-    private val outputFile: File by lazy { Util.getFile("", "mp4") }
+    private val outputFile: File by lazy { Util.newFileWithDate("", "mp4") }
 
     /**
      * Setup a persistent [Surface] for the recorder so we can use it as an output target for the
@@ -177,7 +176,7 @@ class CameraRecorder(context: Context) {
             override fun onOpened(device: CameraDevice) = cont.resume(device)
 
             override fun onDisconnected(device: CameraDevice) {
-                Log.w(TAG, "Camera $cameraId has been disconnected")
+                Log.e(TAG, "Camera $cameraId has been disconnected")
                 // destory self
             }
 
@@ -191,7 +190,7 @@ class CameraRecorder(context: Context) {
                     else -> "Unknown"
                 }
                 val exc = RuntimeException("Camera $cameraId error: ($error) $msg")
-                Log.e(TAG, exc.message, exc)
+                Log.e(TAG, exc.message)
                 if (cont.isActive) cont.resumeWithException(exc)
             }
         }, handler)
@@ -215,7 +214,7 @@ class CameraRecorder(context: Context) {
 
             override fun onConfigureFailed(session: CameraCaptureSession) {
                 val exc = RuntimeException("Camera ${device.id} session configuration failed")
-                Log.e(TAG, exc.message, exc)
+                Log.e(TAG, exc.message)
                 cont.resumeWithException(exc)
             }
         }, handler)

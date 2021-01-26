@@ -11,6 +11,6 @@ class Magnetometer(context: Context) : SensorEventListener, SensorBase(context, 
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
         threshold = Config.Sensor.MAG_THRESHOLD
-        numPrevValues = 5
+        sampleRate = 500
     }
 }

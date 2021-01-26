@@ -4,7 +4,7 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.*
-import android.util.Log
+import com.android.parcelrec.utils.Log
 import android.widget.Toast
 import com.android.parcelrec.utils.SensorServiceActions
 import com.android.parcelrec.utils.TAG

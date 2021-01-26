@@ -6,8 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
-import android.util.Log
-import android.widget.Toast
+import com.android.parcelrec.utils.Log
 import com.android.parcelrec.App
 import com.android.parcelrec.utils.Logger
 import com.android.parcelrec.utils.TAG
@@ -69,7 +68,7 @@ class Wifi(context : Context) : Logger(context, "WiFi") {
                 //New network found
                 lastScanResults.add(it)
                 val line = "${Util.dateString};${it.SSID};${it.BSSID};;\n"
-                writeLine(line)
+                write(line)
             }
         }
 
@@ -78,7 +77,7 @@ class Wifi(context : Context) : Logger(context, "WiFi") {
                 //Lost a network
                 lastScanResults.remove(it)
                 val line = "${Util.dateString};;;${it.SSID};${it.BSSID}\n"
-                writeLine(line)
+                write(line)
             }
         }
     }

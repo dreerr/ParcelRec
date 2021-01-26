@@ -3,7 +3,7 @@ package com.android.parcelrec.sensors
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEventListener
-import android.util.Log
+import com.android.parcelrec.utils.Log
 import com.android.parcelrec.App
 import com.android.parcelrec.utils.Config
 import com.android.parcelrec.utils.TAG

@@ -4,7 +4,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.util.Log
+import com.android.parcelrec.utils.Log
 import com.android.parcelrec.App
 import com.android.parcelrec.utils.Logger
 import com.android.parcelrec.utils.Util
@@ -22,11 +22,12 @@ open class SensorBase(context: Context, fileNameTag:String) : SensorEventListene
 
     // Previous values
     private var prevValues = ArrayList<FloatArray>()
-    var numPrevValues = 10
+    var numPrevValues = 5
     private var lastUpdate = Date().time
 
     // Threshold Levels
     var threshold : Double = 0.0
+    var sampleRate : Long = 100L
 
     // Threshold Events
     private var inThreshold = false
@@ -37,9 +38,9 @@ open class SensorBase(context: Context, fileNameTag:String) : SensorEventListene
     override fun onSensorChanged(event: SensorEvent?) {
         if(event == null) return
 
-        // Check if 100ms have passed
+        // Check if sampleRate has passed
         val curTime = Date().time
-        if (curTime - lastUpdate < 100) return
+        if (curTime - lastUpdate < sampleRate) return
         lastUpdate = curTime
 
         // Check Threshold for each axis
@@ -67,7 +68,10 @@ open class SensorBase(context: Context, fileNameTag:String) : SensorEventListene
 
         // Do Logging
         val line = "${Util.dateString};${event.values.joinToString(";")}\n"
-        writeLine(line)
+        write(line)
+
+        if(thresholdStartedListeners.count() == 0 &&
+            thresholdEndedListeners.count()==0) return
 
         // Handle Threshold Events
         if(inThreshold) {

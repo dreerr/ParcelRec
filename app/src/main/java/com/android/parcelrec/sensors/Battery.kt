@@ -26,7 +26,7 @@ class Battery(context : Context) : Logger(context, "Battery") {
             while(isActive) {
                 if(lastLevel != batteryLevel) {
                     val line = "${Util.dateString};$batteryLevel\n"
-                    writeLine(line)
+                    write(line)
                     lastLevel = batteryLevel
                 }
                 delay(15 * 60_000)
