@@ -190,6 +190,7 @@ class CameraRecorder(context: Context) {
                 }
                 val exc = RuntimeException("Camera $cameraId error: ($error) $msg")
                 Log.e(TAG, exc.message)
+                camera.close()
                 if (cont.isActive) cont.resumeWithException(exc)
             }
         }, handler)

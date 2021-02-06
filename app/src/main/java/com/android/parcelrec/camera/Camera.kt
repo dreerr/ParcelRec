@@ -46,14 +46,13 @@ class Camera(context: Context) {
         recording = true
         Log.i(TAG, "Starting new recording")
         try {
-            cameraRecorder = CameraRecorder(context, this)
+            cameraRecorder = CameraRecorder(context)
         } catch (e: Exception) {
             recording = false
             Log.d(TAG, "Error starting recording: ${e.message}")
         }
         rotateJob = App.scope.launch(Dispatchers.IO) {
             delay(Config.rotateMillis)
-            Log.i("Camera", "Rotate recording")
             rotate()
         }
         totalRecordings++

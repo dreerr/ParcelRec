@@ -44,7 +44,7 @@ class Settings(context: Context) {
         set(value) = editor.putInt(KEY_HEIGHT, value).apply()
 
     var recDuration
-        get() = this.sharedPreferences.getInt(KEY_REC_DURATION, 30)
+        get() = this.sharedPreferences.getInt(KEY_REC_DURATION, 120)
         set(value) = editor.putInt(KEY_REC_DURATION, value).apply()
 
     var camId
