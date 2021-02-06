@@ -28,11 +28,11 @@ class Settings(context: Context) {
         set(value) = editor.putInt(KEY_INTERVAL, value).apply()
 
     var url: String?
-        get() = this.sharedPreferences.getString(KEY_API_URL, "https://palacz.my.to:49900/1")
+        get() = this.sharedPreferences.getString(KEY_API_URL, "https://palacz.my.to:49900/")
         set(value) = editor.putString(KEY_API_URL, value).apply()
 
     var urlBackup: String?
-        get() = this.sharedPreferences.getString(KEY_API_BACKUP_URL, "http://10.1.1.2:3000/1")
+        get() = this.sharedPreferences.getString(KEY_API_BACKUP_URL, "http://10.1.1.2:3000/")
         set(value) = editor.putString(KEY_API_BACKUP_URL, value).apply()
 
     var width

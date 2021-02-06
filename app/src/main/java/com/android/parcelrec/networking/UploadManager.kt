@@ -145,7 +145,7 @@ class UploadManager(val context: Context) {
         fun requestOnURL(url: String): Response = run {
             val request: Request = Request.Builder()
                 .header("X-API-Key", Config.Network.API_KEY)
-                .url(url)
+                .url(url + App.id)
                 .post(requestBody)
                 .build()
 

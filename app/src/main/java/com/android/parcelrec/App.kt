@@ -3,19 +3,18 @@ package com.android.parcelrec
 import android.app.Application
 import com.android.parcelrec.camera.Camera
 import com.android.parcelrec.sensors.Gps
-import com.android.parcelrec.utils.Settings
 import com.android.parcelrec.networking.UploadManager
 import com.android.parcelrec.sensors.Accelerometer
 import com.android.parcelrec.sensors.Battery
 import com.android.parcelrec.sensors.Gyroscope
 import com.android.parcelrec.sensors.Magnetometer
-import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.sensors.Wifi
-import com.android.parcelrec.utils.Log
-import com.android.parcelrec.utils.Logger
+import com.android.parcelrec.utils.*
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 class App : Application() {
     companion object {
@@ -32,6 +31,7 @@ class App : Application() {
         var gps : Gps? = null
         var wifi : Wifi? = null
         val scope = MainScope()
+        val id = SimpleDateFormat("yyyy-MM-dd__HH-mm", Locale.US).format(Date().time)
 
     }
 
