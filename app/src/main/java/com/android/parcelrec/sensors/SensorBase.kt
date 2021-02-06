@@ -27,7 +27,7 @@ open class SensorBase(context: Context, fileNameTag:String) : SensorEventListene
 
     // Threshold Levels
     var threshold : Double = 0.0
-    var sampleRate : Long = 100L
+    var sampleRate : Long = 250L
 
     // Threshold Events
     private var inThreshold = false
@@ -60,16 +60,21 @@ open class SensorBase(context: Context, fileNameTag:String) : SensorEventListene
         if(prevValues.count() > numPrevValues) prevValues.removeAt(0)
 
         // Finally work with the exceeded threshold
-        if(thresholdExceeded) onThresholdExceeded(event)
+        if(thresholdExceeded) {
+            logEvent(event)
+            processListeners()
+        }
     }
 
-    open fun onThresholdExceeded(event: SensorEvent?) {
+    open fun logEvent(event: SensorEvent?) {
         if(event==null) return
 
         // Do Logging
         val line = "${Util.dateString};${event.values.joinToString(";")}\n"
         write(line)
+    }
 
+    fun processListeners() {
         if(thresholdStartedListeners.count() == 0 &&
             thresholdEndedListeners.count()==0) return
 
