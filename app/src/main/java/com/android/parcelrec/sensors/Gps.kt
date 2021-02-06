@@ -4,34 +4,34 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.*
 import android.os.Looper
-import com.android.parcelrec.utils.Log
 import com.android.parcelrec.App
+import com.android.parcelrec.utils.Log
 import com.android.parcelrec.utils.Logger
 import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
+import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
+import java.util.concurrent.TimeUnit
+
 
 class Gps(context: Context) : Logger(context, "GPS") {
-    private var lastLoc: Location? = null
-
     private var fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     lateinit var settingsClient: SettingsClient
     lateinit var locationRequest: LocationRequest
     lateinit var locationCallback: LocationCallback
+    private var lastLoc: Location? = null
 
     init {
-        createLocationRequest()
-        createLocationCallBack()
+        createFused()
     }
 
     @SuppressLint("MissingPermission")
-    fun createLocationRequest() {
-
+    fun createFused() {
         locationRequest = LocationRequest().apply {
-            interval = 20 * 1000
-            fastestInterval = 5 * 1000
+            interval = TimeUnit.SECONDS.toMillis(10)
+            fastestInterval = TimeUnit.SECONDS.toMillis(5)
+            maxWaitTime = TimeUnit.MINUTES.toMillis(1)
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
@@ -46,14 +46,13 @@ class Gps(context: Context) : Logger(context, "GPS") {
             Log.e(TAG, "No GPS: {${exception.localizedMessage}}")
             throw Exception(exception.localizedMessage)
         }
-    }
 
-    @SuppressLint("MissingPermission")
-    private fun createLocationCallBack() {
         locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                super.onLocationResult(locationResult)
-                onLocationChanged(locationResult.lastLocation)
+            override fun onLocationResult(locationResult: LocationResult?) {
+                locationResult ?: return
+                for (location in locationResult.locations) {
+                    processLocation(location)
+                }
             }
         }
         App.accelerometer?.thresholdStartedListeners?.add {
@@ -61,7 +60,7 @@ class Gps(context: Context) : Logger(context, "GPS") {
         }
     }
 
-    fun onLocationChanged(loc: Location) {
+    fun processLocation(loc: Location) {
         if (lastLoc?.latitude == loc.latitude &&
             lastLoc?.longitude == loc.longitude
         ) return
@@ -74,7 +73,11 @@ class Gps(context: Context) : Logger(context, "GPS") {
 
     @SuppressLint("MissingPermission")
     fun run() {
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.myLooper()
+        )
     }
 
     fun stop() {
