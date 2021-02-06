@@ -1,12 +1,13 @@
 package com.android.parcelrec.camera
 
 import android.content.Context
-import com.android.parcelrec.utils.Log
 import com.android.parcelrec.App
 import com.android.parcelrec.utils.Config
+import com.android.parcelrec.utils.Log
 import com.android.parcelrec.utils.TAG
 import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
+
 
 class Camera(context: Context) {
     private val context = context
@@ -22,11 +23,15 @@ class Camera(context: Context) {
     }
 
     fun run() {
-        App.accelerometer?.thresholdStartedListeners?.add {
+        if(App.settings.recMotionOnly) {
+            App.accelerometer?.thresholdStartedListeners?.add {
+                startRecording()
+            }
+            App.accelerometer?.thresholdEndedListeners?.add {
+                stopRecording()
+            }
+        } else {
             startRecording()
-        }
-        App.accelerometer?.thresholdEndedListeners?.add {
-            stopRecording()
         }
     }
 
@@ -41,7 +46,7 @@ class Camera(context: Context) {
         recording = true
         Log.i(TAG, "Starting new recording")
         try {
-            cameraRecorder = CameraRecorder(context)
+            cameraRecorder = CameraRecorder(context, this)
         } catch (e: Exception) {
             recording = false
             Log.d(TAG, "Error starting recording: ${e.message}")

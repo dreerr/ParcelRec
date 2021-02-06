@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.android.parcelrec.App
 import com.android.parcelrec.R
 import kotlinx.android.synthetic.main.camera_settings.view.*
+import kotlinx.android.synthetic.main.upload_settings.view.*
 
 
 class CameraSettings(var context : Context) {
@@ -19,6 +20,7 @@ class CameraSettings(var context : Context) {
     private val cameraId = view.camera_id
     private val resolution = view.resolution
     private val recDuration = view.rec_duration
+    val rec_motion_only = view.rec_motion_only
 
     private val settingsHelper = CameraSettingsHelper(context)
     private val cameraIdList = settingsHelper.getCameraIDs()
@@ -85,12 +87,14 @@ class CameraSettings(var context : Context) {
         App.settings.width = selectedSize!![selectedSizeIdx].width
 
         App.settings.recDuration = recDuration.text.toString().toInt()
+
+        App.settings.recMotionOnly = rec_motion_only.isChecked
     }
 
     private fun loadConfiguration(){
         cameraId.setSelection(App.settings.camId!!.toInt())
         recDuration.setText(App.settings.recDuration.toString())
-
+        rec_motion_only.isChecked = App.settings.recMotionOnly
         //Resolution is loaded in buildCameraResolutionSpinner
     }
 

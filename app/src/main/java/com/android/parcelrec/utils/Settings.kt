@@ -6,7 +6,7 @@ import android.content.Context
 const val KEY_WIDTH = "width"
 const val KEY_HEIGHT = "height"
 const val KEY_REC_DURATION = "recDuration"
-const val KEY_REC_INTERVAL = "recInterval"
+const val KEY_REC_MOTION_ONLY = "recMotionOnly"
 const val KEY_CAM_ID = "camId"
 
 /**Network settings*/
@@ -50,6 +50,11 @@ class Settings(context: Context) {
     var camId
         get() = this.sharedPreferences.getString(KEY_CAM_ID, "0")
         set(value) = editor.putString(KEY_CAM_ID, value).apply()
+
+    var recMotionOnly
+        get() = this.sharedPreferences.getBoolean(KEY_REC_MOTION_ONLY, true)
+        set(value) = editor.putBoolean(KEY_REC_MOTION_ONLY, value).apply()
+
 }
 
 object Config {
