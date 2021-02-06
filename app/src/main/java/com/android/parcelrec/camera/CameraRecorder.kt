@@ -41,7 +41,6 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class CameraRecorder(context: Context) {
-
     private val args = CameraRecorderArgs(
         App.settings.camId!!,
         30,
@@ -177,7 +176,7 @@ class CameraRecorder(context: Context) {
 
             override fun onDisconnected(device: CameraDevice) {
                 Log.e(TAG, "Camera $cameraId has been disconnected")
-                // destory self
+                device.close()
             }
 
             override fun onError(device: CameraDevice, error: Int) {
