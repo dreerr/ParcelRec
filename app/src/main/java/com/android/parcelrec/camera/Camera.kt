@@ -41,15 +41,16 @@ class Camera(context: Context) {
         startRecording()
     }
 
-    private fun startRecording() {
+    private fun startRecording(retry: Boolean = true) {
         if (recording || !Util.enoughFreeSpace() || App.battery!!.batteryLevel < 10) return
-        recording = true
         Log.i(TAG, "Starting new recording")
         try {
             cameraRecorder = CameraRecorder(context)
+            recording = true
         } catch (e: Exception) {
-            recording = false
             Log.d(TAG, "Error starting recording: ${e.message}")
+            if(retry) startRecording(false)
+            return
         }
         rotateJob = App.scope.launch(Dispatchers.IO) {
             delay(Config.rotateMillis)

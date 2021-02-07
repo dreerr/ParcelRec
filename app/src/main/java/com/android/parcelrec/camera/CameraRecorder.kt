@@ -161,7 +161,6 @@ class CameraRecorder(context: Context) {
             start()
         }
         Log.d(TAG, "Recording started")
-
     }
 
     /** Opens the camera and returns the opened device (as the result of the suspend coroutine) */
@@ -175,8 +174,10 @@ class CameraRecorder(context: Context) {
             override fun onOpened(device: CameraDevice) = cont.resume(device)
 
             override fun onDisconnected(device: CameraDevice) {
-                Log.e(TAG, "Camera $cameraId has been disconnected")
+                val exc = RuntimeException("Camera $cameraId has been disconnected")
+                Log.e(TAG, exc.message)
                 device.close()
+                if (cont.isActive) cont.resumeWithException(exc)
             }
 
             override fun onError(device: CameraDevice, error: Int) {
@@ -190,7 +191,7 @@ class CameraRecorder(context: Context) {
                 }
                 val exc = RuntimeException("Camera $cameraId error: ($error) $msg")
                 Log.e(TAG, exc.message)
-                camera.close()
+                device.close()
                 if (cont.isActive) cont.resumeWithException(exc)
             }
         }, handler)
