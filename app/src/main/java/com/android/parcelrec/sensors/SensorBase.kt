@@ -45,13 +45,13 @@ open class SensorBase(context: Context, fileNameTag:String) : SensorEventListene
 
         // Check Threshold for each axis
         var thresholdExceeded = (prevValues.count() == 0)
+        var differentValues = (prevValues.count() == 0)
         event.values.withIndex().forEach { axis ->
             prevValues.forEach { prevValue ->
                 val prevAxis = prevValue[axis.index]
                 val diff = abs(prevAxis - axis.value)
-                if (diff > threshold) {
-                    thresholdExceeded = true
-                }
+                if (diff > threshold) thresholdExceeded = true
+                if (diff > 0) differentValues = true
             }
         }
 
@@ -59,11 +59,8 @@ open class SensorBase(context: Context, fileNameTag:String) : SensorEventListene
         prevValues.add(event.values.copyOf())
         if(prevValues.count() > numPrevValues) prevValues.removeAt(0)
 
-        // Finally work with the exceeded threshold
-        if(thresholdExceeded) {
-            logEvent(event)
-            processListeners()
-        }
+        if(thresholdExceeded) processListeners()
+        if(differentValues) logEvent(event)
     }
 
     open fun logEvent(event: SensorEvent?) {
@@ -74,11 +71,10 @@ open class SensorBase(context: Context, fileNameTag:String) : SensorEventListene
         write(line)
     }
 
-    fun processListeners() {
+    private fun processListeners() {
         if(thresholdStartedListeners.count() == 0 &&
-            thresholdEndedListeners.count()==0) return
+            thresholdEndedListeners.count() == 0) return
 
-        // Handle Threshold Events
         if(inThreshold) {
             thresholdDidEndJob?.cancel()
         } else {
