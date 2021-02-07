@@ -29,7 +29,6 @@ class Gps(context: Context) : Logger(context, "GPS") {
         locationRequest = LocationRequest().apply {
             interval = TimeUnit.SECONDS.toMillis(6)
             fastestInterval = TimeUnit.SECONDS.toMillis(3)
-            maxWaitTime = TimeUnit.MINUTES.toMillis(1)
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
@@ -72,8 +71,14 @@ class Gps(context: Context) : Logger(context, "GPS") {
             fusedLocationClient.requestLocationUpdates(
                 locationRequest,
                 locationCallback,
-                Looper.myLooper()
+                Looper.getMainLooper()
             )
+            fusedLocationClient.getCurrentLocation(
+                LocationRequest.PRIORITY_HIGH_ACCURACY,
+                null
+            ).addOnCompleteListener {
+                processLocation(it.result)
+            }
         }
 
         App.accelerometer?.thresholdEndedListeners?.add {
