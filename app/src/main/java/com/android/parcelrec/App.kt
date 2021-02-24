@@ -58,7 +58,7 @@ class App : Application() {
         gps = tryOrNull { Gps(applicationContext) }
         gyroscope = tryOrNull { Gyroscope(applicationContext) }
         magnetometer = tryOrNull { Magnetometer(applicationContext) }
-        wifi = tryOrNull { Wifi(applicationContext) }
+        //wifi = tryOrNull { Wifi(applicationContext) }
     }
     override fun onTerminate() {
         super.onTerminate()

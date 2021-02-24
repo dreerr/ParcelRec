@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         if (isMeasurementRunning()) {
             uploadButton.visibility = View.VISIBLE
             cameraSettingButton.visibility = View.GONE
@@ -44,7 +43,9 @@ class MainActivity : AppCompatActivity() {
 
         requestPermissionsIfNeeded()
 
-        startStopButton.setOnClickListener {if (!isMeasurementRunning()) startMeasurement() else stopMeasurement()}
+        startStopButton.setOnClickListener {
+            if (!isMeasurementRunning()) startMeasurement() else stopMeasurement()
+        }
         cameraSettingButton.setOnClickListener {
             val cameraSettings = CameraSettings(this)
             cameraSettings.openCameraSettings()
@@ -60,6 +61,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         registerBroadcastReceiver()
+
+        // Restart service after crash
+        if (App.settings.serviceStarted && !isMeasurementRunning()) startMeasurement()
 
         statusJob = App.scope.launch(Dispatchers.IO) {
             while(isActive) {
@@ -97,6 +101,7 @@ class MainActivity : AppCompatActivity() {
         uploadSettingButton.visibility = View.GONE
 
         actionOnService(SensorServiceActions.START)
+        App.settings.serviceStarted = true
     }
 
     private fun stopMeasurement(){
@@ -106,6 +111,7 @@ class MainActivity : AppCompatActivity() {
         uploadSettingButton.visibility = View.VISIBLE
 
         actionOnService(SensorServiceActions.STOP)
+        App.settings.serviceStarted = false
     }
 
     private fun isMeasurementRunning(): Boolean {

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "372487290695",
+    "project_id": "parcelrec-at",
+    "storage_bucket": "parcelrec-at.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:372487290695:android:ad64c82096d701fd719662",
+        "android_client_info": {
+          "package_name": "com.android.parcelrec"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "372487290695-h2pq8u5brbhc45jimqpcvjdo24k313b9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBn6q7iWSBtQo9sn5LRZsWIKGnaLDo1lkA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "372487290695-h2pq8u5brbhc45jimqpcvjdo24k313b9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

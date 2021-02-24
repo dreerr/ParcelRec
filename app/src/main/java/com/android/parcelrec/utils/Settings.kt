@@ -15,6 +15,8 @@ const val KEY_API_URL = "url"
 const val KEY_API_BACKUP_URL = "urlBackup"
 const val KEY_INTERVAL = "uploadInterval"
 
+const val KEY_SERVICE_STARTED = "serviceStarted"
+
 class Settings(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("SETTINGS", Context.MODE_PRIVATE)
     private val editor = sharedPreferences.edit()
@@ -54,6 +56,10 @@ class Settings(context: Context) {
     var recMotionOnly
         get() = this.sharedPreferences.getBoolean(KEY_REC_MOTION_ONLY, true)
         set(value) = editor.putBoolean(KEY_REC_MOTION_ONLY, value).apply()
+
+    var serviceStarted
+        get() = this.sharedPreferences.getBoolean(KEY_SERVICE_STARTED, false)
+        set(value) = editor.putBoolean(KEY_SERVICE_STARTED, value).apply()
 
 }
 

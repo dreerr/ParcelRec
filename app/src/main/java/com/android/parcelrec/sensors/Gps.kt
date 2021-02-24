@@ -13,12 +13,12 @@ import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
 import java.util.concurrent.TimeUnit
 
-
 class Gps(context: Context) : Logger(context, "GPS") {
     private var fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     lateinit var settingsClient: SettingsClient
     lateinit var locationRequest: LocationRequest
     lateinit var locationCallback: LocationCallback
+
     private var lastLoc: Location? = null
 
     init {
@@ -30,6 +30,7 @@ class Gps(context: Context) : Logger(context, "GPS") {
             interval = TimeUnit.SECONDS.toMillis(6)
             fastestInterval = TimeUnit.SECONDS.toMillis(3)
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            maxWaitTime = TimeUnit.MINUTES.toMillis(5)
         }
 
         locationCallback = object : LocationCallback() {
@@ -67,26 +68,26 @@ class Gps(context: Context) : Logger(context, "GPS") {
 
     @SuppressLint("MissingPermission")
     fun run() {
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
         App.accelerometer?.thresholdStartedListeners?.add {
-            fusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.getMainLooper()
-            )
             fusedLocationClient.getCurrentLocation(
                 LocationRequest.PRIORITY_HIGH_ACCURACY,
                 null
             ).addOnCompleteListener {
-                processLocation(it.result)
+                try {
+                    processLocation(it.result)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Could not process location! ${e.localizedMessage}")
+                }
             }
-        }
-
-        App.accelerometer?.thresholdEndedListeners?.add {
-            fusedLocationClient.removeLocationUpdates(locationCallback)
         }
     }
 
     fun stop() {
-        stopLog()
+        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 }
