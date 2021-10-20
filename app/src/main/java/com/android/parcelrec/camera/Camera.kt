@@ -9,8 +9,7 @@ import com.android.parcelrec.utils.Util
 import kotlinx.coroutines.*
 
 
-class Camera(context: Context) {
-    private val context = context
+class Camera(private val context: Context) {
     private var recording = false
     private var cameraRecorder: CameraRecorder? = null
     private var rotateJob: Job? = null
@@ -42,7 +41,7 @@ class Camera(context: Context) {
     }
 
     private fun startRecording(retry: Boolean = true) {
-        if (recording || !Util.enoughFreeSpace() || App.battery!!.batteryLevel < 10) return
+        if (recording || !Util.enoughFreeSpace() || App.battery!!.batteryLevel < 2) return
         Log.i(TAG, "Starting new recording")
         try {
             cameraRecorder = CameraRecorder(context)

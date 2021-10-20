@@ -66,7 +66,7 @@ class Settings(context: Context) {
 object Config {
     const val rotateMillis = 45 * 60_000L
     object Sensor {
-        const val ACC_THRESHOLD = 0.13
+        const val ACC_THRESHOLD = 0.16
         const val GYRO_THRESHOLD = 0.1
         const val MAG_THRESHOLD = 0.3
     }

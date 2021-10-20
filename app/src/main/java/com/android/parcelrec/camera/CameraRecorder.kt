@@ -116,6 +116,8 @@ class CameraRecorder(context: Context) {
         setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         setOutputFile(outputFile.absolutePath)
         setVideoEncodingBitRate(RECORDER_VIDEO_BITRATE)
+        setAudioSamplingRate(48000)
+        setAudioEncodingBitRate(256000)
         if (args.fps > 0) setVideoFrameRate(args.fps)
         setVideoSize(args.width, args.height)
         setVideoEncoder(MediaRecorder.VideoEncoder.H264)
