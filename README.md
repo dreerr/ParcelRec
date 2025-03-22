@@ -1,5 +1,7 @@
 # ParcelRec
 
+![Handle with Care at FORUM STADTPARK](https://julian.palacz.at/site/assets/files/1422/210507_handle_with_care_c_lena_prehal_002_no_visitor-1.1300x0.jpg)
+
 ## Overview
 ParcelRec is an Android application designed to log sensor data and environmental information to analyze the movement and handling of parcels during transportation. As a foundation for the [Handle with Care](https://julian.palacz.at/en/traces/handle-with-care) project, this app captures a variety of data streams, including motion, location, and environmental changes, to provide insights into the journey of a package.
 
