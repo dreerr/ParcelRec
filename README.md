@@ -1,59 +1,59 @@
-# SensorLogger application for Android
-## Basic informations
-**Requirements**
-* Minimum Android 8.0
-* Permissions:
-  * Camera
-  * Internet
-  * Location
-  * Write rights to external storage
-  
-  
-**Logged informations**
-* Accelerometer signals
-* Gyroscope signals
-* Magnetometer signals
-* Lost and found Wi-Fi access point SSIDs and MAC addresses
-* Video and audio recording
-* GPS coordinates
+# ParcelRec
 
-## Logging
-### Logic of logging
-Logging of accelerometer signals, GPS coordinates, Wi-Fi informations, and video/audio recording is only done, if the device is in movement.
-The device is defined to be moving if the measured acceleration on any axis is greater than a pre-defined value. When the threshold is exceeded, the device will
-be in movement for 30 seconds. When the threshold value is exceeded again within this 30 seconds, the timer is reset. The amount of time for which the
-device is defined to be moving after threshold exceeding can be configured in `Accelerometer.kt` via `movementDelay`.
+## Overview
+ParcelRec is an Android application designed to log sensor data and environmental information to analyze the movement and handling of parcels during transportation. As a foundation for the [Handle with Care](https://julian.palacz.at/en/traces/handle-with-care) project, this app captures a variety of data streams, including motion, location, and environmental changes, to provide insights into the journey of a package.
 
-The logging of gyroscope and magnetometer signals is only done, if the measurement on any axis is greater than a pre-defined value.
+## Features
+### Sensor Logging
+- **Accelerometer**: Logs linear acceleration to detect movement and impacts.
+- **Gyroscope**: Captures angular velocity to monitor rotation.
+- **Magnetometer**: Measures magnetic field changes.
+- **GPS**: Tracks location and altitude.
+- **Wi-Fi**: Logs nearby Wi-Fi networks (found and lost).
+- **Battery**: Monitors battery level during operation.
 
-The configuration of the previously mentioned threshold values can be done in `Config.kt`. Video and audio encoder, and video bitrate can be also set in this file.
+### Video and Audio Recording
+- Records video and audio when movement is detected.
+- Configurable resolution, duration, and motion-only recording mode.
 
-### Configuration
-* The sampling frequency can be changed for each sensors/loggers. For the gyro, magnetometer and accelerometer, `sampleRateMillis` has to be overwritten. The default value is 
-500, which means the sample rate will be 0.5 seconds for these sensors. Since writing and opening the logfile during runtime can be expensive when the logging is done
-at a very high rate, the file is not saved after each line. The frequency of file saving for these 3 sensors can be set via `fileSavingRate` in `SensorBase.kt`.
+### Data Upload
+- Periodic background uploads of log files and recordings to a server.
+- Configurable upload intervals and server URLs.
+- Backup server support for failover.
 
-* Basic camera parameters can be set via user interface, and in `Config.kt`. The format can be changed from `.mp4` to any kind via overwriting `fileName` in `Camera.kt`.
+### User Interface
+- Start/stop measurement with a single button.
+- Configure camera and upload settings via intuitive dialogs.
+- Real-time status display for all sensors and upload progress.
 
-* GPS signal is logged whenever the location changes. As it's frequency is not too big, the corresponding logfile is saved in each iteration.
+## Logging Logic
+- **Movement Detection**: Logging is triggered when acceleration exceeds a configurable threshold. The device remains in a "moving" state for a defined duration after the threshold is exceeded.
+- **Threshold Configuration**: Threshold values for sensors can be adjusted in the source code (`Config.kt`).
+- **Sampling Frequency**: Adjustable for each sensor to balance performance and data granularity.
 
-* Wifi networks are only logged if a network is lost or found. The coloumn seperated logfile has 4 coloumns:
-  * Found network SSID
-  * Found network MAC address
-  * Lost network SSID
-  * Lost network MAC address
-  
-## Uploading
+## Configuration
+- **Camera Settings**: Resolution, recording duration, and motion-only mode can be configured via the UI or `Config.kt`.
+- **Upload Settings**: Server URLs, upload intervals, and upload enablement are configurable via the UI.
+- **Thresholds and Sampling Rates**: Modify `Config.kt` to adjust sensor thresholds and sampling rates.
 
-The uploading of logfiles and video is done periodically in the background. The files are uploaded with seperate POST requests. The total amount of uploaded files in MByte and the last
-uploaded file is logged on the main screen of the app. The period can be set from the UI. Uploaded files are immediately deleted from the device.
+## Permissions
+The app requires the following permissions:
+- **Camera**: For video recording.
+- **Location**: For GPS tracking.
+- **Microphone**: For audio recording.
+- **Storage**: To save log files and recordings.
+- **Internet**: For uploading data to the server.
 
-The URL of the backend can be defined from the UI. **Important:** The URL MUST be defined in the same format as described in the popup window (starts with protocol, ends with `/`)
-By default the requests will go to `parcel/1` endpoint, this can be changed in `SensorLogger.Api`.
+## How to Use
+1. **Setup**: Grant all required permissions when prompted.
+2. **Start Logging**: Press the "START" button to begin logging and recording.
+3. **Configure Settings**: Use the "Camera Settings" and "Upload Settings" buttons to adjust configurations.
+4. **Stop Logging**: Press the "STOP" button to end the session and trigger an immediate upload of all collected data.
 
-Besides the periodic uploading, the files will be posted for the server when the the measurement is stopeed manually. Uploading can be triggered from the UI as well during measurement.
+## Installation
+- Minimum Android version: 8.0 (Oreo).
+- Clone the repository and build the app using Android Studio.
+- Install the APK on your device.
 
-## How to start
-
-You can configure which sensors you'd like to use in `SensorService.kt`. I have just commented out some of them for testing purposes, you can turn them on by
-removing the comment from `onCreate`, `onStartCommand` and `onDestroy` functions.
+## Data Privacy
+All collected data is stored locally on the device and uploaded securely to the configured server. Users are responsible for ensuring compliance with data protection regulations.
