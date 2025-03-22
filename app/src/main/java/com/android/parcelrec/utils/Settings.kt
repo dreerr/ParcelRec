@@ -30,7 +30,7 @@ class Settings(context: Context) {
         set(value) = editor.putInt(KEY_INTERVAL, value).apply()
 
     var url: String?
-        get() = this.sharedPreferences.getString(KEY_API_URL, "https://palacz.my.to:49900/")
+        get() = this.sharedPreferences.getString(KEY_API_URL, "https://server.tld:49900/")
         set(value) = editor.putString(KEY_API_URL, value).apply()
 
     var urlBackup: String?
@@ -72,6 +72,6 @@ object Config {
     }
 
     object Network {
-        const val API_KEY = "dc5daf82-f7a0-11ea-adc1-0242ac120002"
+        const val API_KEY = "Zojas8-wedelndem"
     }
 }
